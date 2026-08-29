@@ -1,0 +1,33 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+  background: #f5f7fa;
+  color: #1f2933;
+}
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+  text-align: center;
+}
+
+.page h1 {
+  margin: 0;
+  font-size: 40px;
+  color: #1d4ed8;
+}
+
+.backend-message {
+  margin: 0;
+  font-size: 22px;
+  color: #334155;
+}
