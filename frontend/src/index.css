@@ -1,33 +1,134 @@
-* {
-  box-sizing: border-box;
+body{
+
+  margin:0;
+
+  background:#f5f7fb;
+
+  font-family:
+  Arial,
+  "Microsoft YaHei";
+
 }
 
-body {
-  margin: 0;
-  font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
-  background: #f5f7fa;
-  color: #1f2933;
+
+.app{
+
+  width:80%;
+
+  margin:auto;
+
 }
 
-.page {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  padding: 24px;
-  text-align: center;
+
+h1{
+
+  text-align:center;
+
+  margin-top:30px;
+
 }
 
-.page h1 {
-  margin: 0;
-  font-size: 40px;
-  color: #1d4ed8;
+
+
+.chat-box{
+
+  height:500px;
+
+  background:white;
+
+  border-radius:20px;
+
+  padding:20px;
+
+  overflow-y:auto;
+
+  margin-top:20px;
+
+
 }
 
-.backend-message {
-  margin: 0;
-  font-size: 22px;
-  color: #334155;
+
+
+.message{
+
+  max-width:60%;
+
+  padding:12px 18px;
+
+  margin:15px;
+
+  border-radius:15px;
+
+  font-size:18px;
+
+}
+
+
+
+.user{
+
+  background:#4f7cff;
+
+  color:white;
+
+  margin-left:auto;
+
+}
+
+
+
+.ai{
+
+  background:#eeeeee;
+
+  color:#333;
+
+}
+
+
+
+.input-area{
+
+  display:flex;
+
+  margin-top:20px;
+
+}
+
+
+
+input{
+
+  flex:1;
+
+  height:45px;
+
+  font-size:18px;
+
+  border-radius:10px;
+
+  border:1px solid #ccc;
+
+  padding-left:15px;
+
+}
+
+
+
+button{
+
+  width:100px;
+
+  margin-left:15px;
+
+  border-radius:10px;
+
+  border:none;
+
+  background:#4f7cff;
+
+  color:white;
+
+  font-size:18px;
+
 }
