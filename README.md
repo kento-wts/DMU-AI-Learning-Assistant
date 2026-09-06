@@ -2,43 +2,37 @@
 
 大连海事大学 AI 学习助手项目。
 
-一个基于 React + TypeScript + FastAPI 的 AI 对话应用。
-
 ## Tech Stack
 
-### Frontend
+Frontend:
 - React
 - TypeScript
 - Vite
 
-### Backend
+Backend:
 - FastAPI
 - Python
 
+AI:
+- DeepSeek API
+
 ## Features
 
-- Chat interface
-- Frontend and backend communication
-- AI response simulation
+- AI Chat Interface
+- Frontend / Backend Communication
+- Large Language Model Integration
 
-## Project Structure
-frontend/
-├── React + TypeScript + Vite
+## Architecture
 
-backend/
-├── FastAPI
-└── Python
+React
+ ↓
+FastAPI
+ ↓
+DeepSeek API
 
-## Version
 
-### v0.1
+## Future
 
-- Complete frontend framework
-- Complete backend API connection
-- Implement basic chat interaction
-
-## Future Plan
-
-- Connect real LLM API
-- Add RAG knowledge base
-- Add user authentication
+- RAG Knowledge Base
+- User Authentication
+- Conversation History
