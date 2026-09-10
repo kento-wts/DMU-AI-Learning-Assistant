@@ -41,8 +41,13 @@ app.add_middleware(
 )
 
 
+class Message(BaseModel):
+    role: str
+    content: str
+
+
 class ChatRequest(BaseModel):
-    question: str
+    messages: list[Message]
 
 
 @app.get("/api/hello")
@@ -54,21 +59,32 @@ def hello() -> dict:
 def chat(request: ChatRequest) -> dict:
 
     try:
+        deepseek_messages = [
+            {
+                "role": "system",
+                "content": (
+                    "你是大连海事大学的 AI 学习助手。"
+                    "请用清晰、准确、适合大学生理解的方式回答问题。"
+                ),
+            }
+        ]
+
+        for message in request.messages:
+            role = message.role
+
+            if role == "ai":
+                role = "assistant"
+
+            deepseek_messages.append(
+                {
+                    "role": role,
+                    "content": message.content,
+                }
+            )
+
         response = client.chat.completions.create(
             model="deepseek-v4-flash",
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "你是大连海事大学的 AI 学习助手。"
-                        "请用清晰、准确、适合大学生理解的方式回答问题。"
-                    ),
-                },
-                {
-                    "role": "user",
-                    "content": request.question,
-                },
-            ],
+            messages=deepseek_messages,
             stream=False,
         )
 

@@ -19,6 +19,14 @@ const [messages,setMessages]=useState<Message[]>([]);
     }
 
     setLoading(true);
+    const userMessage = {
+  role: "user",
+  content: trimmedQuestion
+};
+
+const nextMessages = [...messages, userMessage];
+
+setMessages(nextMessages);
 
     try {
       const response = await fetch(
@@ -30,9 +38,9 @@ const [messages,setMessages]=useState<Message[]>([]);
             "Content-Type": "application/json"
           },
 
-          body: JSON.stringify({
-            question: trimmedQuestion
-          })
+         body: JSON.stringify({
+  messages: nextMessages
+})
         }
       );
 
@@ -43,16 +51,12 @@ const [messages,setMessages]=useState<Message[]>([]);
       const data = await response.json();
 
       setMessages(prev => [
-        ...prev,
-        {
-          role: "user",
-          content: trimmedQuestion
-        },
-        {
-          role: "ai",
-          content: data.answer
-        }
-      ]);
+  ...prev,
+  {
+    role: "ai",
+    content: data.answer
+  }
+]);
 
       setQuestion("");
     } catch {
