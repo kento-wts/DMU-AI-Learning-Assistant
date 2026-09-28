@@ -2,3 +2,6 @@ fastapi
 uvicorn
 openai
 python-dotenv
+pypdf>=6.0,<7.0
+fastembed>=0.6,<1.0
+chromadb>=1.0,<2.0
