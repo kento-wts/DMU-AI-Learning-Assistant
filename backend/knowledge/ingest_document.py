@@ -65,6 +65,13 @@ def build_parser() -> argparse.ArgumentParser:
         required=True,
         help="Document type, for example 管理办法.",
     )
+    parser.add_argument(
+        "--document-id",
+        help=(
+            "Stable document identity. When omitted, the normalized PDF "
+            "path is used."
+        ),
+    )
     return parser
 
 
@@ -77,6 +84,8 @@ def main(argv: list[str] | None = None) -> int:
         "major": args.major,
         "document_type": args.document_type,
     }
+    if args.document_id is not None:
+        metadata["document_id"] = args.document_id
 
     result = ingest_document(args.pdf_path, metadata)
 

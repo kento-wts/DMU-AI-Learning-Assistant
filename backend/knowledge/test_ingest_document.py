@@ -1,5 +1,6 @@
 """Tests for the PDF-to-Chroma command-line import wrapper."""
 
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -47,7 +48,7 @@ class IngestDocumentTests(unittest.TestCase):
             finally:
                 store.close()
 
-    def test_import_increases_chroma_count_and_saves_metadata(self) -> None:
+    def test_import_is_idempotent_and_saves_metadata(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             pdf_path = Path(temp_dir) / "course-notes.pdf"
             pdf_path.write_bytes(
@@ -72,7 +73,17 @@ class IngestDocumentTests(unittest.TestCase):
                     "backend.knowledge.ingest.embed_text",
                     side_effect=lambda _text: [0.1, 0.2, 0.3],
                 ):
-                    result = ingest_document(
+                    first_result = ingest_document(
+                        str(pdf_path),
+                        {
+                            "year": 2026,
+                            "major": "软件工程",
+                            "document_type": "管理办法",
+                        },
+                        store=store,
+                    )
+                    count_after_first_import = len(store)
+                    second_result = ingest_document(
                         str(pdf_path),
                         {
                             "year": 2026,
@@ -82,8 +93,16 @@ class IngestDocumentTests(unittest.TestCase):
                         store=store,
                     )
 
-                self.assertGreater(result["chunk_count"], 0)
-                self.assertEqual(len(store), initial_count + result["chunk_count"])
+                self.assertGreater(first_result["chunk_count"], 0)
+                self.assertEqual(
+                    first_result["chunk_count"],
+                    second_result["chunk_count"],
+                )
+                self.assertEqual(
+                    count_after_first_import,
+                    initial_count + first_result["chunk_count"],
+                )
+                self.assertEqual(len(store), count_after_first_import)
 
                 results = store.search([0.1, 0.2, 0.3], top_k=len(store))
                 imported_results = [
@@ -92,10 +111,22 @@ class IngestDocumentTests(unittest.TestCase):
                     if item.metadata.get("kind") != "existing"
                 ]
 
-                self.assertEqual(len(imported_results), result["chunk_count"])
+                self.assertEqual(
+                    len(imported_results),
+                    first_result["chunk_count"],
+                )
+                document_id = os.path.normcase(str(pdf_path.resolve()))
                 for item in imported_results:
                     self.assertEqual(
-                        item.metadata,
+                        {
+                            key: item.metadata[key]
+                            for key in (
+                                "year",
+                                "major",
+                                "document_type",
+                                "source",
+                            )
+                        },
                         {
                             "year": 2026,
                             "major": "软件工程",
@@ -103,6 +134,9 @@ class IngestDocumentTests(unittest.TestCase):
                             "source": "course-notes.pdf",
                         },
                     )
+                    self.assertEqual(item.metadata["document_id"], document_id)
+                    self.assertIsInstance(item.metadata["chunk_index"], int)
+                    self.assertEqual(len(item.metadata["chunk_hash"]), 64)
             finally:
                 store.close()
 

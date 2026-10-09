@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import os
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -10,7 +12,7 @@ from .embedding import embed_text
 from .pdf_loader import load_pdf_text
 
 if TYPE_CHECKING:
-    from .chroma_store import ChromaVectorStore
+    from .chroma_store import ChromaRecord, ChromaVectorStore
 
 
 def ingest_pdf(
@@ -42,18 +44,26 @@ def ingest_pdf_to_store(
     metadata: dict[str, Any],
     store: ChromaVectorStore,
 ) -> int:
-    """Extract, chunk, embed, and persist one PDF in a vector store.
+    """Extract, chunk, embed, and replace one PDF in a vector store.
+
+    The complete new version is prepared before any old records are replaced.
+    A legal PDF that yields no text removes the document's old records; a PDF
+    loading failure occurs before replacement and therefore leaves old records
+    unchanged.
 
     Args:
         pdf_path: Path to the source PDF file.
-        metadata: Metadata shared by every chunk in this PDF.
+        metadata: Metadata shared by every chunk in this PDF. An optional
+            ``document_id`` value overrides the normalized file path identity.
         store: Vector store into which chunks and embeddings are written.
 
     Returns:
-        The number of chunks successfully written to ``store``.
+        The number of chunks in the imported version.
 
     Raises:
         TypeError: ``metadata`` is not a dictionary.
+        TypeError: ``document_id`` is present but is not a string.
+        ValueError: ``document_id`` is present but is empty.
         FileNotFoundError: The PDF path does not exist.
         IsADirectoryError: The path is not a regular file.
         PdfLoadError: The PDF exists but cannot be parsed or read.
@@ -62,19 +72,75 @@ def ingest_pdf_to_store(
     if not isinstance(metadata, dict):
         raise TypeError("metadata must be a dictionary")
 
+    document_id = _resolve_document_id(pdf_path, metadata)
+
     extracted_text = load_pdf_text(pdf_path)
     chunks = chunk_text(extracted_text)
-    if not chunks:
-        return 0
 
     chunk_metadata = dict(metadata)
+    chunk_metadata["document_id"] = document_id
     chunk_metadata["source"] = Path(pdf_path).name
 
-    for chunk in chunks:
-        vector = embed_text(chunk)
-        store.add(text=chunk, vector=vector, metadata=chunk_metadata)
+    # Prepare every vector before mutating the store so a failed parse or
+    # embedding call cannot remove the current document version.
+    vectors = [embed_text(chunk) for chunk in chunks]
 
-    return len(chunks)
+    from .chroma_store import ChromaRecord
+
+    records: list[ChromaRecord] = []
+    for chunk_index, (chunk, vector) in enumerate(zip(chunks, vectors)):
+        chunk_hash = _hash_text(chunk)
+        record_metadata = {
+            **chunk_metadata,
+            "chunk_index": chunk_index,
+            "chunk_hash": chunk_hash,
+        }
+        records.append(
+            ChromaRecord(
+                id=_build_chunk_id(document_id, chunk_index, chunk_hash),
+                text=chunk,
+                vector=vector,
+                metadata=record_metadata,
+            )
+        )
+
+    # Chroma does not provide a transaction spanning the read, upsert, and
+    # stale-record delete performed by replace_document.
+    store.replace_document(document_id, records)
+
+    return len(records)
+
+
+def _resolve_document_id(
+    pdf_path: str,
+    metadata: dict[str, Any],
+) -> str:
+    """Return an explicit document ID or a normalized absolute PDF path."""
+    explicit_document_id = metadata.get("document_id")
+    if explicit_document_id is not None:
+        if not isinstance(explicit_document_id, str):
+            raise TypeError("document_id must be a string")
+        if not explicit_document_id.strip():
+            raise ValueError("document_id must be a non-empty string")
+        return explicit_document_id
+
+    normalized_path = Path(pdf_path).expanduser().resolve(strict=False)
+    return os.path.normcase(str(normalized_path))
+
+
+def _hash_text(text: str) -> str:
+    """Return the SHA-256 hash of one chunk's UTF-8 text."""
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def _build_chunk_id(
+    document_id: str,
+    chunk_index: int,
+    chunk_hash: str,
+) -> str:
+    """Build a stable chunk ID from document identity and chunk content."""
+    payload = f"{document_id}\0{chunk_index}\0{chunk_hash}".encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
 
 
 __all__ = ["ingest_pdf", "ingest_pdf_to_store"]
