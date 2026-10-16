@@ -458,6 +458,8 @@ python tools/rag_verification/verify_inventory.py
 | L2 | 中 | 评估集仅 1 条 query | **已缓解** | 已扩到 22 条并有核对记录（见 2.5）；仍非基准，不做准确率外推 |
 | L3 | 中 | 空结果与低分结果不可区分（无阈值、clamp 到 0） | 已知局限 | 建议加可选 `min_score` |
 | L4 | 中 | 仓库不记录文档来源信息 | 已缓解 | 新增来源清单 + 自动校验；建议纳入入库 metadata |
+| O4 | 高 | 默认 `top_k=3` 漏掉文末的范围/施行条款，模型据此自行推断并给出错误答案 | 待决策 | 见 `OPEN_ISSUES.md` P0-2 |
+| P5 | 中 | NFKC 不覆盖 CJK 部首补充（U+2E80–U+2EFF），2026 列表残留 8 个字符 / 23 处 | 待决策 | `pdf_loader.py`、`embedding.py` |
 
 ### 3.1 修复的兼容性说明
 
@@ -473,19 +475,40 @@ python tools/rag_verification/verify_inventory.py
   默认行为与旧版一致，旧调用点无需改动。
 - 未改动任何公共返回值结构、异常类型或 `SearchResult` / `VectorRecord` 定义。
 
-### 3.2 需要重新入库才能生效的说明（未执行）
+### 3.2 重新入库的执行情况（阶段三已完成）
 
 P1、P2、P3 中：
 
 - **P3 立即生效**：prompt 组装在查询时进行，不需要重新入库。
-- **P1、P2 需要重新生成 Embedding**：已入库的 chunk 文本与向量仍带旧缺陷。
-  按任务边界，**本次没有删除任何向量库、也没有重新生成全量 Embedding**。
-  仓库中本来也不存在 `data/chroma/`，所以不存在"污染现场"需要清理。
-- 正式启用时建议的流程（**需负责人确认后执行**）：
-  1. 备份或确认 `data/chroma/` 可丢弃；
-  2. 用第 4 节的 `document_id` 清单逐份重新导入；
-  3. 跑 `verify_inventory.py` 与 `verify_rag.py` 复核；
-  4. 用 `evaluate_retrieval.py` 人工比对 E4 的 chunk 是否合适。
+- **P1、P2 需要重新生成 Embedding**：阶段三已执行——用修复后的代码从 10 份 PDF
+  重新构建了向量库（75 条 / 10 份文档），并随本次提交纳入版本控制（`data/chroma/`）。
+  因此仓库里的向量库**不再带旧缺陷**：NFKC 归一化已作用于索引侧文本，
+  `max_chars` 也已正确透传。
+- 重建方式：`python -m backend.knowledge.build_index`（幂等、可重复执行、不会删库）；
+  只产出文本与切片、不碰向量库的是 `python -m backend.knowledge.export_chunks`。
+- 复核方式：`verify_rag.py`（E1–E10）与 `verify_inventory.py`（45 条来源断言）。
+  本次已复核：128 个用例全部通过，且库中记录数 / 切片文件行数 / 文本文件数三者一致。
+
+### 3.3 阶段三新增的发现
+
+1. **默认 `top_k=3` 会漏掉文末的范围/施行条款（上表 O4，高优先）**
+   - 实测：问「推免办法适用于哪些年级」，模型答「2025 届 / 通常对应 2021 级」——**错误**；
+     原文是「第十五条 …适用于 **2022 级及以后**年级本科学生」。
+   - 根因：该条款位于 `chunk_index=3`，在 `top_k=5` 时排第 **5** 位，
+     而主流程默认只取 3 条 → 条款根本没进 prompt，
+     模型于是按「应届毕业生」自行推断，并附上了文号与印发日期，**看起来完全可信**。
+   - 这是目前最危险的一类错误：有出处、语气确定，但内容错。
+
+2. **NFKC 覆盖不全（上表 P5）**
+   - NFKC 能修「康熙部首」（U+2F00–U+2FDF），但修不了「CJK 部首补充」（U+2E80–U+2EFF）。
+   - 2026 竞赛列表里仍残留 **8 个字符、23 处**：`⺠`(民)、`⻄`(西)、`⻋`(车)、`⻔`(门)、
+     `⻘`(青)、`⻚`(页)、`⻛`(风)、`⻰`(龙)；逐个验证过 NFKC 对它们无效（`U+2EA0 → U+2EA0`）。
+   - 规模约为当初 631 处的 1/27，但机理相同：这些词的向量仍与正常输入的查询不一致。
+
+3. **问题集有两处标注错误**（详见 4.2 节的更正与 `OPEN_ISSUES.md` P1-1）：
+   `q18`（转专业）、`q20`（补考/重修）被误标为「语料缺口」，实际内容就在学籍管理规定里。
+
+以上三条都已登记在 [`OPEN_ISSUES.md`](OPEN_ISSUES.md)。
 
 ---
 
@@ -523,9 +546,18 @@ P1、P2、P3 中：
 
 ### 4.2 语料覆盖缺口
 
-培养方案/课程计划、转专业办法、考试与成绩记载规定、当年国家奖学金通知、
-大创项目管理办法、2026 年校内竞赛报名通知/时间表 —— 均**不在**知识库内。
+**已核实确实不在知识库内的主题**（判定方法是先剔除全部空白再检索，
+避免硬换行把词拆断造成假阴性）：培养方案 / 课程计划、考试安排、
+医疗保障、大学生创新创业训练计划（大创）项目管理办法、
+2026 年校内竞赛的报名时间 / 截止日期。
 也就是说，很多学生会问的问题本来就无资料可检索。
+
+> **本节更正（阶段三）**：早前版本把「转专业办法」也列入缺口，并把问题集中的
+> `q18`（转专业）、`q20`（补考/重修）标为 `not_in_corpus`，这是**错误的**——
+> 这两类内容就写在《非航海类专业本科生学籍管理规定》里：
+> 去掉空白后检索，`转专业` 命中 2 份文档、`补考` 1 份、`重修` 3 份。
+> 当初的检查是逐行 grep，而抽取文本是硬换行的，`转专` / `业` 被拆到两行导致漏判。
+> 问题集这两条标注待修，见 `OPEN_ISSUES.md` 的 P1-1。
 
 ---
 
@@ -565,7 +597,11 @@ P1、P2、P3 中：
 | 文件 | 内容 |
 | --- | --- |
 | `RAG_VERIFICATION.md` | 本报告 |
-| `PULL_REQUEST.md` | PR 描述。分支已推送到 `origin/feat/rag-verification`（顶端 `6c67fde`）；本机未安装 `gh` CLI，PR 在 GitHub 网页端创建：`https://github.com/kento-wts/DMU-AI-Learning-Assistant/pull/new/feat/rag-verification` |
+| `PULL_REQUEST.md` | PR 描述。分支 `feat/rag-verification` 已推送到 origin，PR 在 GitHub 网页端创建：`https://github.com/kento-wts/DMU-AI-Learning-Assistant/pull/new/feat/rag-verification`（顶端提交以 `git log` 为准） |
+| `OPEN_ISSUES.md` | 当前未解决的问题与待决策事项 |
+| `backend/knowledge/build_index.py` | PDF → 向量库（批量、幂等、显式 document_id） |
+| `backend/knowledge/export_chunks.py` | PDF → 抽取文本 + 切片文件（不碰向量库） |
+| `data/chroma/`、`data/exports/` | 已提交的向量库与各阶段产物（75 条 / 10 份文档） |
 | `backend/knowledge/pdf_loader.py` | P1 修复：每页文本 NFKC 归一化 |
 | `backend/knowledge/embedding.py` | P1 修复：`normalize_for_embedding`，索引/查询双侧一致 |
 | `backend/knowledge/prompt_builder.py` | P3 修复：资料块携带来源/类型/年份/ID |
@@ -589,4 +625,9 @@ P1、P2、P3 中：
 3. 评估表格解析（L1），决定是用版面解析库还是针对竞赛列表写行重建。
 4. 把 `issue_date` / `issuing_body` / `applicable_scope` 纳入入库 metadata（L4）。
 5. 给 `replace_document` 增加失败回滚或至少一致性自检。
-6. 统一 `document_id` 规范，去掉对绝对路径的隐式依赖。
+6. ~~统一 `document_id` 规范，去掉对绝对路径的隐式依赖~~ **已完成**：
+   `build_index.py` 的入库流程一律使用显式 `document_id`，
+   不再依赖 `ingest_pdf_to_store` 那个「归一化绝对路径」的默认值。
+7. 决定默认 `top_k` 是否提高到 5~8（O4），以及是否引入最低分阈值（L3）——见 `OPEN_ISSUES.md`。
+8. 修正 `evaluation_dataset.json` 中 `q18` / `q20` 的错误标注，并补两个真负样本（P1-1）。
+9. 补一张 CJK 部首补充（U+2E80–U+2EFF）的映射表（P5）。
