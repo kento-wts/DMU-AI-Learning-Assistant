@@ -8,7 +8,7 @@
 | 审查范围 | 全仓库：前端、后端、测试、配置 |
 | 审查方式 | 只读审查（Git 状态、目录扫描、源码通读、关键词检索、环境探测） |
 | 代码改动 | **无**。本次审查未修改任何业务代码、未重构、未新建数据库、未改动现有接口 |
-| 执行的真实测试 | **0 个**（原因见 2.2、2.3） |
+| 执行的真实测试 | 初版审查阶段 **0 个**；同日复测后 **后端 87/87 通过**（详见附录 B 与 `docs/test/frontend-test-matrix.md`） |
 
 ---
 
@@ -133,7 +133,8 @@ documents/           10 个校规 PDF + .gitkeep
 | `Test-Path` | `pyproject.toml`/`pytest.ini`/`setup.cfg`/`conftest.py`/`Makefile`/`Dockerfile`/`.env.example`/`.github` **全部 False** |
 | `npm run`、`npm run build`、`npm run lint`、`npm run test` | 四条**全部失败**（见 2.2） |
 | `python -B -c "import fastapi, chromadb, ..."` | fastapi / uvicorn / openai / dotenv / pypdf / fastembed / chromadb / pytest **全部 MISSING** |
-| 副作用复查 | `frontend/dist` False、`frontend/node_modules` False、`data/` False、`__pycache__` False、`.pytest_cache` False |
+| 副作用复查（初版审查） | `frontend/dist` False、`frontend/node_modules` False、`data/` False、`__pycache__` False、`.pytest_cache` False |
+| 副作用复查（复测后） | 新增 `.venv/`、`data/chroma/`、`backend/__pycache__`，**均被 `.gitignore` 覆盖**；tracked 文件改动数仍为 0 |
 
 ### 2.2 工具链实测结论（两个硬阻塞点）
 
@@ -154,28 +155,33 @@ EXITCODE=1
 
 **后端：零依赖。** Python 3.13.9 存在（`D:\python\python.exe`），但 fastapi、uvicorn、openai、python-dotenv、pypdf、fastembed、chromadb、pytest **全部未安装**，也没有 `.venv`。embedding 模型本地缓存（`~/.cache/fastembed`、`~/.cache/huggingface`）不存在。
 
-### 2.3 明确的「未验证」清单
+### 2.3 验证状态（初版 vs 复测后）
 
-**本次执行的真实测试数量 = 0。** 以下内容全部来自静态阅读，**不是**测试通过：
+**初版审查阶段执行的真实测试数量 = 0**，当时所有结论均来自静态阅读。当晚完成环境准备后进行了复测，状态如下：
 
-| 项目 | 状态 |
-| --- | --- |
-| 后端 pytest / unittest | **未执行**（依赖缺失；安装依赖在本阶段被禁止） |
-| 后端服务启动 | **未执行**（缺依赖 + 缺 `DEEPSEEK_API_KEY`） |
-| 前端 `npm run build` / `dev` / `preview` | **未执行**（缺 npm、缺 node_modules） |
-| 前端渲染与交互 | **未验证**（无测试框架、无浏览器验证） |
-| SSE 端到端联调 | **未验证**（需真实 DeepSeek 调用，被明令规避） |
-| 知识库检索质量 | **未验证**（`evaluate_retrieval.py`、`test_retrieval_real.py` 均未运行；`data/chroma` 不存在，知识库为空） |
-| embedding 模型可用性 | **未验证**（fastembed 未安装、模型未缓存） |
-| 10 个 PDF 入库 | **未执行**（会写向量库 + 联网下载模型） |
+| 项目 | 初版 | 复测后 |
+| --- | --- | --- |
+| 后端 unittest | 未执行 | **87/87 通过**（`.venv` + 标准库 `unittest`） |
+| 后端服务启动 | 未执行 | **通过**（约 3.5 秒就绪，`/api/hello` 返回 200） |
+| 后端接口与 CORS | 未执行 | **通过**（400 / 422 / 预检 5173 放行 / 预检 5174 拦截，共 6 项） |
+| embedding 模型（真实） | 未验证 | **通过**（联网下载后 8/8） |
+| 知识入库 | 未执行 | **部分通过**（1/10 个 PDF，9 chunks） |
+| 知识库检索质量 | 未验证 | **已实测**（q1 命中 4/4，最高分 0.6837） |
+| 前端 `npm run build` / `dev` | 未执行 | **通过**（`tsc` 零类型错误；vite 构建 281 模块 / 941ms；dev server `GET /` 返回 200） |
+| 前端渲染与交互 | 未验证 | **基本通过**：Playwright + 系统 Edge 实测 20 项（结构、流式增量、Markdown、复制、停止、清空、失败提示、窄屏）；FE-04 中文输入法**未验证**；FE-08 **发现缺陷** |
+| `/api/chat` 成功路径与 SSE 端到端 | 未验证 | **部分验证**：前端侧流式消费已用契约一致的本地 mock 跑通；真实后端 + 真实 DeepSeek 链路**仍未验证** |
+| 真实 DeepSeek 调用 | 未执行 | **仍未执行**（无真实密钥；本轮全部通过 mock 绕开） |
+| 剩余 9 个 PDF 入库 | 未执行 | **仍未执行**（元数据取值待 RAG 负责人确定） |
 
-**2.4 节列出的问题除注明外均为静态推断，未经运行验证；标注「待确认」处需环境就绪后用真实调用确认。**
+**2.4 节问题的验证进展**：第 2、3、12 条已由复测证实（见附录 B.3）；其余问题仍属静态推断，标注「待确认」处需相应环境或用例才能确认。
 
 ### 2.4 静态审查发现的问题（仅记录，未修复）
 
 **高优先级：**
 
 1. **中止生成后残留空 AI 气泡**（`App.tsx:181-183` + 153-159 提前 `return`）：占位 `{role:"ai", content:""}` 永久留在 `messages` 中，UI 上被 237-239 行隐藏，但**下次发送时会随 payload 一起 POST**，后端会把它转成 `{"role":"assistant","content":""}` 送给 DeepSeek。是否被模型拒绝 → **待确认**（需真实调用）。
+   **✅ 2026-10-16 浏览器实测已复现**：复现条件为「**在首个数据块到达前**点击停止生成」。实测请求体为 `["user:5","ai:961","user:13","ai:0","user:10"]`，其中 `ai:0` 即残留的空 AI 消息。若在中止前已收到部分内容（`content` 非空）则不会出现该问题——这也解释了为何第 2 轮测试一度未发现（当时首块已到达）。
+   **✅ 上游后果已实测确认为良性**：用真实 key 调用真实 DeepSeek，含空 `assistant` 消息的请求返回 **HTTP 200 且回答正常**、0 个 error 事件。该缺陷**不会导致请求失败**，仅污染会话历史并多消耗少量 token，**严重程度下调为"轻微"**（仍建议修复）。见附录 B.6。
 2. **后端对历史消息 role 无白名单**（`main.py:75` 的 `role: str` + 113-124 原样转发）：客户端可在历史中注入 `{"role":"system", ...}`，绕过 `main.py:92-98` 的受控 system 构造。`RAG_CONTEXT_NOTE` 只覆盖了资料侧注入。
 3. **检索阶段异常无兜底**（`main.py:143-145` 位于 `try` 之外）：embedding 失败 / 维度不匹配 / 集合损坏 → 500 HTML；而只有 DeepSeek 调用被 `try` 包住（147-181），导致上游失败以 **HTTP 200 + SSE error 事件** 返回，状态码语义分裂。
 4. **后端错误详情被前端吞掉**（`App.tsx:110-112` 抛出的真实 `data.error` 被 catch 统一覆盖为固定中文提示；`!response.ok` 时后端 400 的 `detail` 同样被丢弃）。
@@ -327,3 +333,111 @@ python -B -c "import fastapi, chromadb, fastembed, pypdf, openai, pytest"
 ```
 
 **注意**：`backend/knowledge/test_retrieval_real.py` 与 `backend/knowledge/test_embedding.py` 中的真实模型/真实向量库路径，运行前请先确认隔离方式（详见 2.4 第 16 条）。
+
+---
+
+## 附录 B：2026-10-16 晚间复测更新
+
+初版报告（第 1-5 节）基于静态阅读，测试数为 0。本附录记录环境准备完成后的**真实执行结果**，并修正 / 补充前述结论。详细用例表见 `docs/test/frontend-test-matrix.md`。
+
+### B.1 复测环境
+
+| 项 | 值 |
+| --- | --- |
+| Python | 3.13.9（`D:\python\python.exe`），pip 25.2 |
+| 虚拟环境 | 仓库内 `.venv`（被 `.gitignore:5` 覆盖），**仅安装 `backend/requirements.txt` 声明的 7 项**，未新增任何包 |
+| 测试框架 | 标准库 `unittest`（**未安装 pytest**，不新增依赖） |
+| 已装版本 | fastapi 0.143.3、uvicorn 0.54.0、openai 3.31.0、python-dotenv 1.2.4、pypdf 6.21.0、fastembed 0.9.0、chromadb 1.5.9 |
+| 代码改动 | **无**。未修改任何测试文件或业务代码 |
+
+### B.2 复测结果汇总
+
+| # | 项目 | 结果 |
+| --- | --- | --- |
+| 1 | `unittest` 逐模块（11 个 mock 模块） | **79/79 通过** |
+| 2 | `unittest discover -s backend -t .`（模型未缓存、沙箱无网络） | `Ran 87 tests` → **FAILED (errors=1)** |
+| 3 | `unittest -v backend.knowledge.test_embedding`（联网下载模型） | **8/8 通过**，33.7s（含约 28s 下载） |
+| 4 | 再次 `unittest discover` | `Ran 87 tests in 2.150s` → **OK** |
+| 5 | `uvicorn backend.main:app` 启动 | 就绪约 **3.5 秒** |
+| 6 | `GET /api/hello` | `200` + `{"message":"Hello, DMU AI!"}` |
+| 7 | `POST /api/chat`（仅含 `ai` 消息） | `400` + `{"detail":"请求中没有 user 消息"}` |
+| 8 | `POST /api/chat`（空 body） | `422` + Pydantic 校验详情 |
+| 9 | CORS 预检 `Origin: http://localhost:5173` | `200` + `access-control-allow-origin` |
+| 10 | CORS 预检 `Origin: http://127.0.0.1:5174` | `400`，**无** `access-control-allow-origin` |
+| 11 | 启动后 `data/chroma` | **未创建**（检索器懒加载） |
+| 12 | 入库《…竞赛列表(2026年)》 | `Chunks imported: 9` |
+| 13 | `evaluate_retrieval --query-id q1` | top_k=3/5/10 → 3/5/9 条；最高分 **0.6837**；4 个标注竞赛名 **4/4 命中** |
+| 14 | `npm run` / `build` / `lint` / `test` | **4 条仍全部失败**（本机无 npm） |
+
+### B.3 被实测证实的审查结论
+
+| 报告条目 | 结论 | 实测证据 |
+| --- | --- | --- |
+| 2.4 第 2 条：后端不校验 role 白名单，客户端可注入 system 消息 | **证实** | 进程内调用 `_build_deepseek_messages`，传入 `role="system"` 的消息后，返回的 messages 中**出现第二个 `{"role": "system", ...}`**，与 main.py 构造的受控 system 并列 |
+| 2.4 第 3 条：检索阶段异常无兜底 | **证实** | 将 `EMBEDDING_MODEL` 设为不存在的模型名后 `POST /api/chat`（含 user 消息）→ **HTTP 500**，响应体仅纯文本 `Internal Server Error`；服务端日志为未捕获的 `EmbeddingError: Unable to load embedding model` |
+| 2.4 第 12 条：CORS 端口耦合 | **证实** | 预检 `Origin=5174` 返回 400 且无 `access-control-allow-origin`；`Origin=5173` 正常放行 |
+| 2.4 第 5 条相关：`_get_retriever()` 懒加载 | **证实** | 服务启动完成后 `data/` 目录仍不存在；只有在真正处理含 user 消息的请求时才创建 |
+| 2.4 第 16 条：`test_retrieval_real.py` 的隔离问题 | **部分修正** | 直接以脚本运行确实 `ImportError: attempted relative import with no known parent package`；但作为包模块导入正常，且实测 `has test funcs: []`（0 个用例），因此 `discover` 下**不会**执行 `main()`、不会创建 `data/chroma` |
+| 1.4 节：无结构化任务计划生成 | **证实** | 87 个用例中无任何 task / plan 相关断言；全仓库关键词检索仍为 0 命中 |
+
+### B.4 复测新发现的问题
+
+1. **`ingest_document.py` 控制台中文乱码**：输出为 `����1....pdf`。`evaluate_retrieval.py:177-178` 有 `sys.stdout.reconfigure(encoding="utf-8")`，`ingest_document.py` 缺失。写入 Chroma 的数据正确，仅显示受影响。
+2. **embedding 模型缓存落在 `%TEMP%`**：实测为 `C:\Users\zyhh2\AppData\Local\Temp\fastembed_cache`，属系统临时目录，可能被清理后需重新下载；可用 `EMBEDDING_CACHE_DIR`（`embedding.py:22`）覆盖。
+3. **Windows 无符号链接权限告警**：`huggingface_hub` 提示缓存降级（需开发者模式或管理员），占用更多磁盘；不影响功能。
+4. **HF 未认证限流告警**：未配置 `HF_TOKEN` 时下载速率受限。
+5. **`-B` 未能阻止字节码缓存**：`backend/__pycache__` 与 `backend/knowledge/__pycache__` 仍被创建（被 `.gitignore:3` 覆盖）。
+6. **`openai` 版本为 3.31.0**（大版本 3.x）：项目代码使用 `client.chat.completions.create(...)`，在 mock 测试中可正常工作，但**未经过真实调用验证**，大版本兼容性属待确认项。
+
+### B.5 前端复测（同日，构建 + 真实浏览器）
+
+系统仍无 npm，改用官方 **ZIP 版 Node.js v24.22.0（LTS）+ npm 11.19.1** 解压到 `%TEMP%`（不写注册表、无需管理员权限、可删）。依赖安装刻意使用 `npm ci`——它只按 lockfile 安装，**绝不改写被跟踪的 `package-lock.json`**（实测改动数 0）。
+
+| 项目 | 结果 |
+| --- | --- |
+| `npm ci` | `added 166 packages in 14s` |
+| `npx tsc --noEmit` | **EXITCODE=0，零类型错误**（`strict` / `noUnusedLocals` / `noUnusedParameters` 全开） |
+| `npm run build` | vite v6.4.3，281 模块，941ms；产物 JS 356.16 kB（gzip 110.34 kB） |
+| `npm run dev` | 启动成功，`GET /` → 200 |
+| 浏览器检查 | Playwright 1.62.1 + **系统 Edge**（未下载浏览器），5 轮累计 30 余项断言；后端替换为**与 `main.py` SSE 契约一致的本地 mock**，**未调用真实 DeepSeek** |
+
+**通过项**：界面结构 5 项、FE-01/02/03/05/06/07/09/10/11/12/13/14 共 11 项。
+
+**新增前端侧发现**：
+
+1. **未声明 favicon**：`GET /favicon.ico` → 404，控制台留一条 404 记录（`frontend/index.html` 无 favicon 声明）。
+2. **自动滚底余量 25px 不收敛**：流结束后等 2 秒 gap 仍为 25px。但实测最新消息与复制按钮**完整可见**，25px 落在容器内边距内，故**不是内容被遮挡**，属轻微瑕疵。推断为 `scrollTo` 目标 `scrollHeight` 取自 effect 执行时刻、内容随后又长高所致。
+3. **中止后输入框不清空**（`App.tsx:152` 因提前 `return` 被跳过）：这是"停止后可重发"的前提，也是 2.4 第 1 条缺陷的成因之一。
+4. **npm 11 拦截 esbuild postinstall**（`allowScripts` 警告），实测不影响构建。
+
+**测试过程自我修正（记录以免误报）**：本轮修正了 6 处测试自身缺陷，其中两处若直接上报即为误报——(a) 首轮 FE-12 因内容未溢出而"无条件通过"；(b) 第 2 轮 FE-12 报"失败（gap=25px）"，精确测量后发现内容可见，属误报。另，第 2 轮"首块前中止"场景因 `loading` 守卫拦下发送而**实际未发生**，第 5 轮等流结束后重测才复现 FE-08。
+
+### B.6 真实链路端到端验证（真实 DeepSeek）
+
+使用真实 API key 启动真实后端（8000）与真实 dev server（5173），由 Playwright 驱动系统 Edge 走完整链路，**不再使用 mock**。
+
+| # | 项目 | 结果 |
+| --- | --- | --- |
+| 1 | 直接 POST 真实 RAG 问题 | HTTP 200；**535 content / 0 error / 1 `[DONE]`**；SSE 原始格式逐字符合契约 |
+| 2 | RAG 是否真的生效 | 回答中出现"**依据**：**资料3**中列有…"，明确引用知识库资料编号 |
+| 3 | RAG 约束性（反向验证） | 提问"奖学金评定依据"→ 模型答"知识库资料未包含奖学金评定办法，因此无法据此说明…"，**未编造** |
+| 4 | 前端真实流式 | 聊天区字符数 37 → 92 递增；思考提示可见；回答正常渲染 |
+| 5 | 真实回答复制 | 按钮变"已复制"；**剪贴板与消息内容完全一致** |
+| 6 | 真实链路下 2.4 第 1 条 | 首块前中止 → 请求体 `["user:27","ai:59","user:9","ai:0","user:8"]`，`ai:0` 确实送达真实后端 |
+| 7 | 空 `assistant` 消息的上游后果 | **真实 DeepSeek 不拒绝**：HTTP 200 正常回答、0 error |
+| 8 | 后端日志 | 全程无 Traceback / 500 / Exception |
+
+**据此对前述结论的修正**：
+
+- 2.4 第 1 条（空 AI 气泡）——**上游后果良性**，严重程度下调为"轻微"；仍属状态污染，建议修复但不阻塞。
+- 2.4 第 3 条（检索期异常无兜底）——已证实会返回 500，结论不变。
+- 1.4 节（无结构化任务计划生成）——本轮验证的是聊天问答链路，与任务计划无关，结论不变。
+
+### B.7 仍未验证的内容（不得视为通过）
+
+- **中文输入法组字回车**（FE-04）：headless 浏览器无法触发 `isComposing`，需人工在真实输入法下确认。
+- **SSE `error` 事件路径**：真实链路只跑通成功路径；上游报错时前端的展示行为未验证。
+- **前端错误提示覆盖后端错误详情**（2.4 第 4 条）：已验证网络失败路径，未验证 SSE `error` 事件路径。
+- **剩余 9 个 PDF 入库与全量检索质量**：未执行（元数据取值待定）。
+- **长历史 token 增长**（2.4 第 6 条）：仅发 3 轮，未做长历史压力测试。
+- **并发 / 多用户场景**：未验证。
