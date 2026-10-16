@@ -3,13 +3,13 @@ Retrieval check record - curated question set
 ================================================================================================
 repository root:  C:\Users\zwk\Documents\Codex\DMU-AI-Learning-Assistant
 dataset:          C:\Users\zwk\Documents\Codex\DMU-AI-Learning-Assistant\backend\knowledge\evaluation_dataset.json
-questions:        22
+questions:        24
 top_k:            5
 
 A quote appearing below only means the text was retrieved. It is not a
 relevance verdict and not recall; a human still has to read the chunk.
 
-throwaway Chroma dir (the repo index is never opened): C:\Users\zwk\AppData\Local\Temp\tmpazvk_aiz\chroma
+throwaway Chroma dir (the repo index is never opened): C:\Users\zwk\AppData\Local\Temp\tmpbq9gxtb5\chroma
 corpus chunks: 75   len(store): 75
 
 ------------------------------------------------------------------------------------------------
@@ -434,14 +434,14 @@ chunks returned: 5
                ( ) yes   ( ) partly   ( ) no        reviewer: __________
 
 ------------------------------------------------------------------------------------------------
-q18  [not_in_corpus]  top_k=5
+q18  [answerable]  top_k=5
 Q: 大连海事大学转专业的申请条件是什么？
-expected document_id(s): (none - this question should not be answered from the corpus)
+expected document_id(s): dlmu-status-rules-2021
 chunks returned: 5
 
-  #1  score=0.7379  dlmu-status-rules-2021
+  #1  score=0.7379  dlmu-status-rules-2021 [expected doc]
        source: 大连海事大学党政办公室关于印发《大连海事大学非航海类专业本科生学籍管理规定》的通知.pdf
-  #2  score=0.7366  dlmu-status-rules-2021
+  #2  score=0.7366  dlmu-status-rules-2021 [expected doc]
        source: 大连海事大学党政办公室关于印发《大连海事大学非航海类专业本科生学籍管理规定》的通知.pdf
   #3  score=0.6874  dlmu-scholarship-2023
        source: 大连海事大学本科生奖学金评定办法.pdf
@@ -449,6 +449,13 @@ chunks returned: 5
        source: 大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf
   #5  score=0.6851  dlmu-postgraduate-recommendation-2025
        source: 大连海事大学党政办公室关于印发《大连海事大学推荐优秀应届本科毕业生免试攻读硕士研究生办法》的通知.pdf
+
+  curated ground-truth points found in the returned text (review aid):
+    - [not present in the returned chunks] 第二十六条转专业(大类)条件
+    - [not present in the returned chunks] 品德优良、学业优秀学生;无未解除的纪律处分,同时培养计划规定的第一学年前2学期(不含小学期)必修和限选课第一次考试成绩平均学分绩点不低于3.0且排名位于本专业(大类)前20%
+    - [not present in the returned chunks] 专业(大类)累计接受人数一般不得超过该专业(大类)年级原人数的10%
+    - [not present in the returned chunks] 不允许转专业(大类)1.入学未满一学期的;2.招生时确定为定向、委托培养的;3.毕业前一年的
+    - [not present in the returned chunks] 学生转专业(大类)学籍异动手续,在每学期放假前一周办理
 
   human check: does any returned chunk above answer the question, and
                does the answer respect the document's scope and year?
@@ -476,21 +483,26 @@ chunks returned: 5
                ( ) yes   ( ) partly   ( ) no        reviewer: __________
 
 ------------------------------------------------------------------------------------------------
-q20  [not_in_corpus]  top_k=5
+q20  [answerable]  top_k=5
 Q: 课程考试不及格后的补考和重修是怎么安排的？
-expected document_id(s): (none - this question should not be answered from the corpus)
+expected document_id(s): dlmu-status-rules-2021
 chunks returned: 5
 
-  #1  score=0.6346  dlmu-status-rules-2021
+  #1  score=0.6346  dlmu-status-rules-2021 [expected doc]
        source: 大连海事大学党政办公室关于印发《大连海事大学非航海类专业本科生学籍管理规定》的通知.pdf
-  #2  score=0.6123  dlmu-status-rules-2021
+  #2  score=0.6123  dlmu-status-rules-2021 [expected doc]
        source: 大连海事大学党政办公室关于印发《大连海事大学非航海类专业本科生学籍管理规定》的通知.pdf
-  #3  score=0.5977  dlmu-status-rules-2021
+  #3  score=0.5977  dlmu-status-rules-2021 [expected doc]
        source: 大连海事大学党政办公室关于印发《大连海事大学非航海类专业本科生学籍管理规定》的通知.pdf
   #4  score=0.5829  dlmu-discipline-2022
        source: 大连海事大学学生违纪处分办法.pdf
-  #5  score=0.5769  dlmu-status-rules-2021
+  #5  score=0.5769  dlmu-status-rules-2021 [expected doc]
        source: 大连海事大学党政办公室关于印发《大连海事大学非航海类专业本科生学籍管理规定》的通知.pdf
+
+  curated ground-truth points found in the returned text (review aid):
+    - [not present in the returned chunks] 通过补考、重修获得的成绩予以标注
+    - [chunk #2] 考试课程以百分制计分,满60分者为及格
+    - [not present in the returned chunks] 对于选修重修课程的学生,重修课程与新修课程(不含任选)上课时间冲突时,由本人申请,经指导教师、任课教师批准后,可以免听重修课程
 
   human check: does any returned chunk above answer the question, and
                does the answer respect the document's scope and year?
@@ -543,18 +555,60 @@ chunks returned: 5
                does the answer respect the document's scope and year?
                ( ) yes   ( ) partly   ( ) no        reviewer: __________
 
+------------------------------------------------------------------------------------------------
+q23  [not_in_corpus]  top_k=5
+Q: 学生的医疗保险怎么报销？学校里看病和住院的费用能报多少？
+expected document_id(s): (none - this question should not be answered from the corpus)
+chunks returned: 5
+
+  #1  score=0.5349  dlmu-status-rules-2021
+       source: 大连海事大学党政办公室关于印发《大连海事大学非航海类专业本科生学籍管理规定》的通知.pdf
+  #2  score=0.5256  dlmu-status-rules-2021
+       source: 大连海事大学党政办公室关于印发《大连海事大学非航海类专业本科生学籍管理规定》的通知.pdf
+  #3  score=0.5245  dlmu-status-rules-2021
+       source: 大连海事大学党政办公室关于印发《大连海事大学非航海类专业本科生学籍管理规定》的通知.pdf
+  #4  score=0.5231  dlmu-status-rules-2021
+       source: 大连海事大学党政办公室关于印发《大连海事大学非航海类专业本科生学籍管理规定》的通知.pdf
+  #5  score=0.5055  dlmu-status-rules-2021
+       source: 大连海事大学党政办公室关于印发《大连海事大学非航海类专业本科生学籍管理规定》的通知.pdf
+
+  human check: does any returned chunk above answer the question, and
+               does the answer respect the document's scope and year?
+               ( ) yes   ( ) partly   ( ) no        reviewer: __________
+
+------------------------------------------------------------------------------------------------
+q24  [not_in_corpus]  top_k=5
+Q: 学校有哪些勤工助学岗位？怎么申请？
+expected document_id(s): (none - this question should not be answered from the corpus)
+chunks returned: 5
+
+  #1  score=0.5634  dlmu-scholarship-2023
+       source: 大连海事大学本科生奖学金评定办法.pdf
+  #2  score=0.5578  dlmu-scholarship-2023
+       source: 大连海事大学本科生奖学金评定办法.pdf
+  #3  score=0.5525  dlmu-scholarship-2023
+       source: 大连海事大学本科生奖学金评定办法.pdf
+  #4  score=0.5483  dlmu-scholarship-2023
+       source: 大连海事大学本科生奖学金评定办法.pdf
+  #5  score=0.5463  dlmu-scholarship-2023
+       source: 大连海事大学本科生奖学金评定办法.pdf
+
+  human check: does any returned chunk above answer the question, and
+               does the answer respect the document's scope and year?
+               ( ) yes   ( ) partly   ( ) no        reviewer: __________
+
 ================================================================================================
 Summary (indicators, not scores)
 ================================================================================================
-questions with an expected document: 16
-  of those, expected document present in top_3: 16
+questions with an expected document: 18
+  of those, expected document present in top_3: 18
   (the rest are returned-chunk evidence for humans to judge, not failures)
 
 not_in_corpus questions - highest score returned:
-  q18: 0.7379
   q19: 0.6590
-  q20: 0.6346
   q21: 0.6375
+  q23: 0.5349
+  q24: 0.5634
   A high score here means an unrelated chunk looked similar; there is
   no minimum-score threshold in the pipeline, so nothing rejects it.
 

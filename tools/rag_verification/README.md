@@ -114,15 +114,16 @@ for the review also carry:
 `q1` is the original entry and keeps its historical `relevant_competitions`
 field so `backend/knowledge/evaluate_retrieval.py` still renders it unchanged.
 
-The set is a **spot-check sample, not a benchmark**: 16 questions have an
-expected document, 4 are marked as corpus gaps, 1 is an extraction-unreliable
+The set is a **spot-check sample, not a benchmark**: 18 questions have an
+expected document, 4 are genuine corpus gaps, 1 is an extraction-unreliable
 case and 1 is a scope trap. No accuracy, recall or precision figure may be
 derived from it.
 
-> Two of the four corpus-gap entries (`q18` 转专业, `q20` 补考/重修) are
-> **mislabelled**: that content is in the non-navigation status rules, and the
-> earlier "0 hits" reading came from a line-based grep that misses words split
-> across hard line breaks. See `OPEN_ISSUES.md` P1-1.
+> Two entries used to be mislabelled as corpus gaps (`q18` 转专业, `q20` 补考/重修);
+> that content is in the non-navigation status rules, and the earlier "0 hits"
+> reading came from a line-based grep that misses words split across hard line
+> breaks. Both are now `answerable` with verbatim clauses, and two real gaps
+> (`q23` medical reimbursement, `q24` work-study jobs) replaced them.
 
 ## Reference output
 
@@ -155,7 +156,7 @@ stable across re-runs.
   definite vector defect (E3, E10) but does not by itself move the ranking of the
   one curated query. Do not report it as an accuracy improvement.
 - `check_retrieval.py` reached the expected document in top_3 for every one of
-  the 16 questions that have an expected document. That is a smoke test that
+  the 18 questions that have an expected document. That is a smoke test that
   retrieval is pointed at the right documents, **not** an accuracy figure: the
   ground truth is partial, the questions were written by the same person who
   read the documents, and nobody has judged the returned chunks yet.
@@ -170,4 +171,6 @@ stable across re-runs.
 - **Correction**: an earlier version of this note used "转专业的申请条件是什么" as
   the corpus-gap example and quoted 0.7379. That topic *is* covered by the
   non-navigation status rules, so the example was wrong (same root cause as the
-  mislabelled dataset entries above).
+  two entries that were mislabelled and have since been fixed). With the
+  corrected set the strongest negative is 0.6590 and exactly one answerable
+  question (0.6346) falls below it - the overlap is narrower but still real.
