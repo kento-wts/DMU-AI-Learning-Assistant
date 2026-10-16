@@ -12,6 +12,7 @@ from pydantic import BaseModel
 from .knowledge.chroma_store import ChromaVectorStore
 from .knowledge.prompt_builder import build_rag_prompt
 from .knowledge.retriever import Retriever
+from .tasks.router import router as tasks_router
 
 
 # 读取 .env
@@ -46,6 +47,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(tasks_router)
 
 
 BASE_SYSTEM_PROMPT = (

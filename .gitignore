@@ -6,6 +6,8 @@ __pycache__/
 
 # Local Chroma vector index
 data/chroma/
+# Local task store
+data/tasks.json
 
 # Node
 node_modules/
