@@ -530,7 +530,7 @@ P1、P2、P3 中：
 | 文件 | 内容 |
 | --- | --- |
 | `RAG_VERIFICATION.md` | 本报告 |
-| `PULL_REQUEST.md` | PR 描述（仓库无 remote、无 `gh` CLI，无法自动开 PR） |
+| `PULL_REQUEST.md` | PR 描述。`origin` 指向 `https://github.com/kento-wts/DMU-AI-Learning-Assistant.git`，`feat/rag-verification` 以该分支推送后开 PR；本机未安装 `gh` CLI，PR 在 GitHub 网页端创建 |
 | `backend/knowledge/pdf_loader.py` | P1 修复：每页文本 NFKC 归一化 |
 | `backend/knowledge/embedding.py` | P1 修复：`normalize_for_embedding`，索引/查询双侧一致 |
 | `backend/knowledge/prompt_builder.py` | P3 修复：资料块携带来源/类型/年份/ID |

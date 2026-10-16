@@ -98,6 +98,12 @@ work:
 All three scripts rewrite the file they own. That is expected; only commit a
 change when the new output is the one you intend to stand behind.
 
+`reference/baseline-verification-report.txt` opens with the absolute repository
+path and the throwaway temp directory of the machine that produced it, so those
+two lines differ on every machine and are not a meaningful diff. Everything
+below them is measured output; the metadata dump is key-sorted so it stays
+stable across re-runs.
+
 ## Interpreting the numbers honestly
 
 - The name-overlap check in E4/E9 is a **review aid**, not a relevance verdict,

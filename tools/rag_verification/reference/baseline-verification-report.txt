@@ -1,7 +1,7 @@
 DMU AI Learning Assistant - RAG verification harness
-repository root: C:\Users\zwk\Documents\deepseek-harness\default-workspace\DMU-AI-Learning-Assistant-main
+repository root: C:\Users\zwk\Documents\Codex\DMU-AI-Learning-Assistant
 documents:       10 PDF files
-throwaway Chroma dir (the repo index is never opened): C:\Users\zwk\AppData\Local\Temp\rag-verify-psze4ta_\chroma
+throwaway Chroma dir (the repo index is never opened): C:\Users\zwk\AppData\Local\Temp\rag-verify-ol8ofox3\chroma
 
 ================================================================================================
 E1  Real-model ingest of the 10 knowledge PDFs (Phase 2 code)
@@ -174,12 +174,12 @@ E8  Provenance: source and date carrying into the prompt
 ================================================================================================
 SearchResult.metadata of the top chunk:
 {
-  "document_id": "dlmu-postgraduate-recommendation-2025",
   "chunk_hash": "e18facd8c072231a451df8419a9320bfcf3fdc1bc934303e614d61d7cc86db3d",
-  "source": "大连海事大学党政办公室关于印发《大连海事大学推荐优秀应届本科毕业生免试攻读硕士研究生办法》的通知.pdf",
   "chunk_index": 0,
-  "year": 2025,
-  "document_type": "推免办法"
+  "document_id": "dlmu-postgraduate-recommendation-2025",
+  "document_type": "推免办法",
+  "source": "大连海事大学党政办公室关于印发《大连海事大学推荐优秀应届本科毕业生免试攻读硕士研究生办法》的通知.pdf",
+  "year": 2025
 }
 
 Built RAG prompt (first 900 characters):

@@ -572,7 +572,9 @@ def e8_provenance(report: Report, persist_dir: Path) -> None:
     results = retriever.retrieve(query, top_k=3)
 
     report.write("SearchResult.metadata of the top chunk:")
-    report.write(json.dumps(results[0].metadata, ensure_ascii=False, indent=2))
+    report.write(
+        json.dumps(results[0].metadata, ensure_ascii=False, indent=2, sort_keys=True)
+    )
     report.write("")
 
     prompt = build_rag_prompt(query, results)
