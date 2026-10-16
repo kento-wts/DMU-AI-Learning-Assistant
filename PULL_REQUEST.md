@@ -1,8 +1,13 @@
 # PR: 验证现有 RAG，并提升知识库可靠性
 
+- 仓库：`https://github.com/kento-wts/DMU-AI-Learning-Assistant.git`
 - 分支：`feat/rag-verification`
-- 基线：`main`（`dfd2b73` 原始 zip 快照，见下方"仓库来源说明"）
-- 改动提交：`1ab4f6e`
+- 基线：`main` = `379b6e8 feat: make RAG ingestion idempotent`
+- 分支顶端提交（以 `git log` 为准，本文件所在提交即最新一个）：
+  1. `feat(knowledge): verify retrieval and fix knowledge-base reliability defects`
+     —— 代码与测试
+  2. `docs: add the PR description for feat/rag-verification`
+  3. `docs: correct the baseline note to the real repo history`
 - 完整报告：[`RAG_VERIFICATION.md`](RAG_VERIFICATION.md)
 
 ## 这个 PR 做了什么
@@ -165,12 +170,11 @@ python tools/rag_verification/verify_rag.py         # E1–E10
 3. **重新入库的执行时机**（报告 3.2 节流程）。
 4. 报告 2.3 节对 E4/E9 的诚实说明是否清晰——**没有任何"整体准确率"结论**。
 
-## 仓库来源说明
+## 关于基线的说明
 
-交付物是 zip 压缩包，**不含 `.git`**，因此：
+最初的一轮检查是在一份 zip 导出上做的，当时误以为仓库没有 git 历史。
+之后确认该 zip 是 `379b6e8` 的完整导出：`backend/`、`frontend/`、`README.md`、
+`.gitignore` 以及 10 份 PDF 的 blob 哈希**与 `379b6e8` 逐字节相同**。
 
-- 无法追溯上游 commit；`main` 上的 `dfd2b73` 是原始 zip 内容的原样快照；
-- 仓库内**没有配置 git remote**，本环境也**没有 `gh` CLI**，
-  所以无法执行 `push` 或创建 PR。本文件即为 PR 描述，供人工在真实仓库上提交。
-- git 提交身份临时设为 `RAG Verification Agent <rag-verification@local>`，
-  请在推送前替换为你的身份。
+因此本分支已从 `379b6e8` 重新建立，改动以 cherry-pick 方式落到真实历史上，
+下面所有实测数字都取自与真实仓库一致的代码。

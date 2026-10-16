@@ -1,15 +1,18 @@
 # RAG 验证报告与知识库可靠性改进
 
-- 分支：`feat/rag-verification`
+- 仓库：`https://github.com/kento-wts/DMU-AI-Learning-Assistant.git`
+- 分支：`feat/rag-verification`（基于 `main` = `379b6e8 feat: make RAG ingestion idempotent`）
 - 验证日期：2026-10-16
 - 运行环境：Python 3.13.12 (Windows)，chromadb 1.5.9，fastembed 0.9.0，pypdf 6.20.1，
   嵌入模型 `BAAI/bge-small-zh-v1.5`（512 维，本地运行，无 API Key）
 - 范围：`backend/knowledge/` 及相关测试与文档。未改动 Agent 主流程、`backend/main.py`、
   `backend/rag_chat.py` 与前端。
 
-> 说明：仓库是以 zip 形式交付的，不含 `.git`。本分支的基线提交
-> `chore: baseline snapshot of DMU AI Learning Assistant` 是原始 zip 内容的原样快照，
-> 无法追溯到上游 commit。
+> 验证过程的说明：最初的检查是在一份 zip 导出上做的，当时误以为仓库没有 git 历史。
+> 之后确认该 zip 是 `379b6e8` 的完整导出——`backend/`、`frontend/`、`README.md`、
+> `.gitignore` 以及 10 份 PDF 的 blob 哈希**与 `379b6e8` 逐字节相同**。
+> 因此本分支的改动已重新变基到真实 `main`（`379b6e8`）之上，
+> 下面所有实测数字都是在与真实仓库一致的代码上得到的。
 
 ---
 
