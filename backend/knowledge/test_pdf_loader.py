@@ -3,8 +3,24 @@
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from backend.knowledge.pdf_loader import PdfLoadError, load_pdf_text
+
+
+class _FakePage:
+    def __init__(self, text: str) -> None:
+        self._text = text
+
+    def extract_text(self) -> str:
+        return self._text
+
+
+class _FakeReader:
+    """Stands in for ``PdfReader`` so PDF output character sets can be forced."""
+
+    def __init__(self, _path: str, page_texts: list[str]) -> None:
+        self.pages = [_FakePage(text) for text in page_texts]
 
 
 class LoadPdfTextTests(unittest.TestCase):
@@ -34,6 +50,51 @@ class LoadPdfTextTests(unittest.TestCase):
             extracted_text = load_pdf_text(str(pdf_path))
 
             self.assertEqual(extracted_text, "First page\n\nSecond page")
+
+
+class CompatibilityCharacterTests(unittest.TestCase):
+    """PDFs that emit Kangxi radicals must not poison the extracted text.
+
+    The 2026 competition list in this repository extracts ``U+2F24`` (⼤)
+    instead of ``U+5927`` (大). Those forms must be normalised before chunking
+    and embedding, otherwise the canonical word never matches.
+    """
+
+    # Kangxi-radical spellings of: 大连海事大学 / 工业大学 / 生日
+    _DAMAGED = "\u2f24连海事\u2f24学 \u2f2f业\u2f24学 \u2f63\u2f47"
+
+    def _load_with_page_text(self, page_text: str) -> str:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            pdf_path = Path(temp_dir) / "compat.pdf"
+            pdf_path.write_bytes(b"%PDF-1.4\n")
+
+            with patch(
+                "backend.knowledge.pdf_loader.PdfReader",
+                side_effect=lambda path: _FakeReader(path, [page_text]),
+            ):
+                return load_pdf_text(str(pdf_path))
+
+    def test_kangxi_radicals_are_normalised_to_canonical_characters(self) -> None:
+        extracted = self._load_with_page_text(self._DAMAGED)
+
+        self.assertEqual(extracted, "大连海事大学 工业大学 生日")
+        self.assertNotIn("\u2f24", extracted)
+        self.assertNotIn("\u2f2f", extracted)
+
+    def test_extracted_text_contains_a_canonical_search_term(self) -> None:
+        extracted = self._load_with_page_text(self._DAMAGED)
+
+        self.assertIn("大连海事大学", extracted)
+
+    def test_nbsp_is_normalised_to_a_plain_space(self) -> None:
+        extracted = self._load_with_page_text("大连海事大学\u00a0教务处")
+
+        self.assertEqual(extracted, "大连海事大学 教务处")
+
+    def test_ordinary_text_is_unchanged(self) -> None:
+        extracted = self._load_with_page_text("普通中文内容 ABC 123")
+
+        self.assertEqual(extracted, "普通中文内容 ABC 123")
 
 
 def _create_minimal_pdf(page_texts: list[str]) -> bytes:

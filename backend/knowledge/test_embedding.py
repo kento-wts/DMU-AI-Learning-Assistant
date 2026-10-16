@@ -7,7 +7,19 @@ from backend.knowledge.embedding import (
     EmbeddingError,
     cosine_similarity,
     embed_text,
+    normalize_for_embedding,
 )
+
+
+class RecordingEmbeddingModel:
+    """Records every text it is asked to embed."""
+
+    def __init__(self) -> None:
+        self.received: list[list[str]] = []
+
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        self.received.append(list(texts))
+        return [[0.1, 0.2, 0.3] for _ in texts]
 
 
 class FakeEmbeddingModel:
@@ -15,6 +27,46 @@ class FakeEmbeddingModel:
 
     def embed(self, texts: list[str]) -> list[list[float]]:
         return [[0.1, 0.2, 0.3] for _ in texts]
+
+
+class NormalizeForEmbeddingTests(unittest.TestCase):
+    """Kangxi-radical compatibility forms must reach the model as canonical text."""
+
+    def test_kangxi_radical_becomes_the_canonical_character(self) -> None:
+        self.assertEqual(normalize_for_embedding("\u2f24连海事\u2f24学"), "大连海事大学")
+
+    def test_fullwidth_forms_are_normalised(self) -> None:
+        self.assertEqual(normalize_for_embedding("ＡＢＣ１２３"), "ABC123")
+
+    def test_canonical_text_is_unchanged(self) -> None:
+        text = "大连海事大学 2026 年竞赛列表"
+
+        self.assertEqual(normalize_for_embedding(text), text)
+
+    def test_non_string_raises_type_error(self) -> None:
+        with self.assertRaisesRegex(TypeError, "text must be a string"):
+            normalize_for_embedding(123)  # type: ignore[arg-type]
+
+
+class EmbeddingInputNormalizationTests(unittest.TestCase):
+    def test_damaged_and_canonical_text_reach_the_model_identically(self) -> None:
+        model = RecordingEmbeddingModel()
+
+        with patch("backend.knowledge.embedding._get_model", return_value=model):
+            embed_text("\u2f24连海事\u2f24学")
+            embed_text("大连海事大学")
+
+        self.assertEqual(len(model.received), 2)
+        self.assertEqual(model.received[0], model.received[1])
+
+    def test_query_with_radicals_matches_a_canonical_chunk_exactly(self) -> None:
+        model = RecordingEmbeddingModel()
+
+        with patch("backend.knowledge.embedding._get_model", return_value=model):
+            damaged_query = embed_text("中国\u2f24学\u2f63计算机设计\u2f24赛")
+            canonical_chunk = embed_text("中国大学生计算机设计大赛")
+
+        self.assertEqual(damaged_query, canonical_chunk)
 
 
 class EmbedTextTests(unittest.TestCase):

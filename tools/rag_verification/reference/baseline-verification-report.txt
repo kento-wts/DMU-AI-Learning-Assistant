@@ -1,0 +1,275 @@
+DMU AI Learning Assistant - RAG verification harness
+repository root: C:\Users\zwk\Documents\deepseek-harness\default-workspace\DMU-AI-Learning-Assistant-main
+documents:       10 PDF files
+throwaway Chroma dir (the repo index is never opened): C:\Users\zwk\AppData\Local\Temp\rag-verify-psze4ta_\chroma
+
+================================================================================================
+E1  Real-model ingest of the 10 knowledge PDFs (Phase 2 code)
+================================================================================================
+document_id                                  chunks  maxlen >1200  compat
+------------------------------------------------------------------------------------------------
+dlmu-xinxikexue-2025-2-assessment                 9    1195     0       0
+dlmu-postgraduate-recommendation-2025             6    1191     0       0
+dlmu-status-rules-2021                           11    1137     0       0
+dlmu-innovation-competition-rules-2023            4    1185     0       0
+dlmu-innovation-award-2024                        3     989     0       0
+dlmu-leave-form                                   1     398     0       0
+dlmu-discipline-2022                             11    1045     0       0
+dlmu-scholarship-2023                            11    1099     0       0
+dlmu-competition-list-2025                       10    1151     0       0
+dlmu-competition-list-2026                        9    1190     0       0
+------------------------------------------------------------------------------------------------
+total chunks: 75   len(store): 75
+distinct document_id values: 10
+metadata keys: ['chunk_hash', 'chunk_index', 'document_id', 'document_type', 'source', 'year']
+EXPERIMENT_RESULT e1 {"total_chunks": 75, "documents": [{"document_id": "dlmu-xinxikexue-2025-2-assessment", "chunks": 9, "max_chunk_chars": 1195, "chunks_over_1200": 0, "compatibility_chars": 0}, {"document_id": "dlmu-postgraduate-recommendation-2025", "chunks": 6, "max_chunk_chars": 1191, "chunks_over_1200": 0, "compatibility_chars": 0}, {"document_id": "dlmu-status-rules-2021", "chunks": 11, "max_chunk_chars": 1137, "chunks_over_1200": 0, "compatibility_chars": 0}, {"document_id": "dlmu-innovation-competition-rules-2023", "chunks": 4, "max_chunk_chars": 1185, "chunks_over_1200": 0, "compatibility_chars": 0}, {"document_id": "dlmu-innovation-award-2024", "chunks": 3, "max_chunk_chars": 989, "chunks_over_1200": 0, "compatibility_chars": 0}, {"document_id": "dlmu-leave-form", "chunks": 1, "max_chunk_chars": 398, "chunks_over_1200": 0, "compatibility_chars": 0}, {"document_id": "dlmu-discipline-2022", "chunks": 11, "max_chunk_chars": 1045, "chunks_over_1200": 0, "compatibility_chars": 0}, {"document_id": "dlmu-scholarship-2023", "chunks": 11, "max_chunk_chars": 1099, "chunks_over_1200": 0, "compatibility_chars": 0}, {"document_id": "dlmu-competition-list-2025", "chunks": 10, "max_chunk_chars": 1151, "chunks_over_1200": 0, "compatibility_chars": 0}, {"document_id": "dlmu-competition-list-2026", "chunks": 9, "max_chunk_chars": 1190, "chunks_over_1200": 0, "compatibility_chars": 0}]}
+
+================================================================================================
+E2  Re-running ingest over the same corpus (duplicate risk)
+================================================================================================
+run 1: chunks reported = 75, len(store) = 75
+run 2: chunks reported = 75, len(store) = 75
+run 1 chunks == run 2 chunks: True
+duplicate record ids: 0
+duplicate (document_id, chunk_hash) pairs: 0
+PASS: True
+EXPERIMENT_RESULT e2 {"counts": [75, 75], "store_size": 75, "duplicate_ids": 0, "duplicate_content": 0, "pass": true}
+
+================================================================================================
+E3  Kangxi-radical damage on the 2026 competition list
+================================================================================================
+raw extracted chars:  7575
+NFKC repaired chars:  7575
+characters only NFKC repairs: 631
+probe: 中国高校计算机大赛
+probe as the PDF writes it: 中国⾼校计算机⼤赛
+
+chunk form                           cosine vs query
+------------------------------------------------------------------------------------------------
+title, pre-fix embedding                    0.528993
+title, Phase 2 embedding                    0.537039
+title, canonical text                       0.537039
+first 400 chars, pre-fix                    0.664765
+first 400 chars, Phase 2                    0.684908
+
+The extracted chunk text and the canonical title are different strings before the fix, so the chunk lands at a different point in vector space than the same words typed in a query. Phase 2 normalises both sides.
+cosine(pre-fix vector of the damaged title, Phase 2 vector of the canonical title) = 0.885282
+
+Curated ground-truth names inside the 2026 PDF text:
+  中国大学生计算机设计大赛                     as extracted: False  NFKC repaired: True
+  ACM-ICPC国际大学生程序设计竞赛              as extracted: False  NFKC repaired: True
+  中国高校计算机大赛                        as extracted: False  NFKC repaired: True
+  “中国软件杯”大学生软件设计大赛                 as extracted: False  NFKC repaired: True
+EXPERIMENT_RESULT e3 {"rows": [{"form": "title, pre-fix embedding", "cosine": 0.528993}, {"form": "title, Phase 2 embedding", "cosine": 0.537039}, {"form": "title, canonical text", "cosine": 0.537039}, {"form": "first 400 chars, pre-fix", "cosine": 0.664765}, {"form": "first 400 chars, Phase 2", "cosine": 0.684908}], "raw_chars": 7575, "repaired_chars": 7575, "name_presence": {"中国大学生计算机设计大赛": {"as_extracted": false, "nfkc_repaired": true}, "ACM-ICPC国际大学生程序设计竞赛": {"as_extracted": false, "nfkc_repaired": true}, "中国高校计算机大赛": {"as_extracted": false, "nfkc_repaired": true}, "“中国软件杯”大学生软件设计大赛": {"as_extracted": false, "nfkc_repaired": true}}}
+
+================================================================================================
+E4  Curated evaluation query against: Phase 2 code
+================================================================================================
+collection size: 75
+
+--- top_k = 3 ---
+  #1 score=0.7765 source=附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf year=2025 chunk_index=0
+       大连海事大学本科生创新创业竞赛列表(2025|年)|序号|竞赛名称|主办单位|类别|校内承办单位|(部门)|负责人|联系方式|1|中国国际大学生创新大赛|教育部|A|创新创业学院|张政
+  #2 score=0.7313 source=大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf year=2023 chunk_index=0
+       —|1|—|连海大办字〔2023〕7|号|大连海事大学党政办公室关于印发|《大连海事大学大学生创新创业竞赛管理办法》|的通知|各单位(部门):|经学校同意,现将《大连海事大学大学生创新创业竞赛管理|办
+  #3 score=0.7141 source=大连海事大学大学生科技创新奖励办法（正文）.pdf year=2024 chunk_index=0
+       —|1|—|连海大办字〔2024〕5号|大连海事大学党政办公室关于印发|《大连海事大学大学生科技创新奖励办法》|的通知|各单位(部门):|经学校同意,现将《大连海事大学大学生科技创新奖励办法》|予以印
+  ground-truth names found by text overlap: 0/4 []
+
+--- top_k = 5 ---
+  #1 score=0.7765 source=附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf year=2025 chunk_index=0
+       大连海事大学本科生创新创业竞赛列表(2025|年)|序号|竞赛名称|主办单位|类别|校内承办单位|(部门)|负责人|联系方式|1|中国国际大学生创新大赛|教育部|A|创新创业学院|张政
+  #2 score=0.7313 source=大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf year=2023 chunk_index=0
+       —|1|—|连海大办字〔2023〕7|号|大连海事大学党政办公室关于印发|《大连海事大学大学生创新创业竞赛管理办法》|的通知|各单位(部门):|经学校同意,现将《大连海事大学大学生创新创业竞赛管理|办
+  #3 score=0.7141 source=大连海事大学大学生科技创新奖励办法（正文）.pdf year=2024 chunk_index=0
+       —|1|—|连海大办字〔2024〕5号|大连海事大学党政办公室关于印发|《大连海事大学大学生科技创新奖励办法》|的通知|各单位(部门):|经学校同意,现将《大连海事大学大学生科技创新奖励办法》|予以印
+  #4 score=0.7083 source=2025-2中队本科生综合素质测评实施细则.pdf year=2025 chunk_index=4
+       3、积极参加征文类、读书类活动,并取得一定成绩或在网络文化建设、传播方面表现突出,各中队依据|实际情况予以酌情加分。4、如出现学术伪造等不良现象,则取消该同学本学年及下一学年的评奖评优资格,并给予学院
+  #5 score=0.7073 source=附件1.《大连海事大学本科生创新创业竞赛列表(2026年)》.pdf year=2026 chunk_index=2
+       工业和信息化部人才交流中心、中国通信企业协会|中国大学生计算机设计大赛|“中国软件杯”大学生软件设计大赛|全国大学生光电设计竞赛|“大唐杯”全国大学生新一代信息通信技术大赛|教育部高等学校计算机类专业
+  ground-truth names found by text overlap: 3/4 ['中国大学生计算机设计大赛', '中国高校计算机大赛', '“中国软件杯”大学生软件设计大赛']
+
+--- top_k = 10 ---
+  #1 score=0.7765 source=附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf year=2025 chunk_index=0
+       大连海事大学本科生创新创业竞赛列表(2025|年)|序号|竞赛名称|主办单位|类别|校内承办单位|(部门)|负责人|联系方式|1|中国国际大学生创新大赛|教育部|A|创新创业学院|张政
+  #2 score=0.7313 source=大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf year=2023 chunk_index=0
+       —|1|—|连海大办字〔2023〕7|号|大连海事大学党政办公室关于印发|《大连海事大学大学生创新创业竞赛管理办法》|的通知|各单位(部门):|经学校同意,现将《大连海事大学大学生创新创业竞赛管理|办
+  #3 score=0.7141 source=大连海事大学大学生科技创新奖励办法（正文）.pdf year=2024 chunk_index=0
+       —|1|—|连海大办字〔2024〕5号|大连海事大学党政办公室关于印发|《大连海事大学大学生科技创新奖励办法》|的通知|各单位(部门):|经学校同意,现将《大连海事大学大学生科技创新奖励办法》|予以印
+  #4 score=0.7083 source=2025-2中队本科生综合素质测评实施细则.pdf year=2025 chunk_index=4
+       3、积极参加征文类、读书类活动,并取得一定成绩或在网络文化建设、传播方面表现突出,各中队依据|实际情况予以酌情加分。4、如出现学术伪造等不良现象,则取消该同学本学年及下一学年的评奖评优资格,并给予学院
+  #5 score=0.7073 source=附件1.《大连海事大学本科生创新创业竞赛列表(2026年)》.pdf year=2026 chunk_index=2
+       工业和信息化部人才交流中心、中国通信企业协会|中国大学生计算机设计大赛|“中国软件杯”大学生软件设计大赛|全国大学生光电设计竞赛|“大唐杯”全国大学生新一代信息通信技术大赛|教育部高等学校计算机类专业
+  #6 score=0.7032 source=附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf year=2025 chunk_index=4
+       42|中美青年创客大赛|教育部|A|航运经济与|管理学院|赵玲|zhaoling8033@163|.com|43|全国高校商业精英挑战赛--|品牌策划竞赛、文旅与会展|创新创业实践竞赛、国
+  #7 score=0.6999 source=大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf year=2023 chunk_index=3
+       —|8|—|复奖励;奖励生效后,如在后续学期参加各级各类竞赛获得更高|级别奖项,不再重复认定。|第二十二条|获奖学生奖励情况按照《大连海事大学大学生科|技创新奖励办法》、《大连海事大学推荐优秀应届本科
+  #8 score=0.6933 source=附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf year=2025 chunk_index=2
+       20|ACM-ICPC|国际大学生程序|设计竞赛|美国计算机学会|A|信息科学技术|学院|曹志英|18840915361|21|中国高校计算机大赛-大数|据挑战赛、团体程序设计天|梯赛(珠
+  #9 score=0.6899 source=附件1.《大连海事大学本科生创新创业竞赛列表(2026年)》.pdf year=2026 chunk_index=0
+       竞赛|序号|竞赛名称|指导单位/主办单位|赛道编号|认定赛道|类别|校内承办单位(部⻔)|101|高教主赛道|102|“⻘年红色筑梦之旅”赛道|103|产业赛道|201|学术交流项目|202|改革成果
+  #10 score=0.6889 source=大连海事大学党政办公室关于印发《大连海事大学推荐优秀应届本科毕业生免试攻读硕士研究生办法》的通知.pdf year=2025 chunk_index=4
+       —|11|—|附件|大连海事大学推荐优秀应届本科毕业生免试|攻读硕士研究生综合能力加分方案|1.综合能力加分是对学生本科期间作为主力成员参加有关学|科竞赛获奖突出、科研学术成果突出、本科期间参军入伍服
+  ground-truth names found by text overlap: 3/4 ['中国大学生计算机设计大赛', '中国高校计算机大赛', '“中国软件杯”大学生软件设计大赛']
+
+EXPERIMENT_RESULT e4_rag_verify_e1 {"3": {"returned": 3, "matched": [], "matched_count": 0, "sources": {"附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf": 1, "大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf": 1, "大连海事大学大学生科技创新奖励办法（正文）.pdf": 1}}, "5": {"returned": 5, "matched": ["中国大学生计算机设计大赛", "中国高校计算机大赛", "“中国软件杯”大学生软件设计大赛"], "matched_count": 3, "sources": {"附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf": 1, "大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf": 1, "大连海事大学大学生科技创新奖励办法（正文）.pdf": 1, "2025-2中队本科生综合素质测评实施细则.pdf": 1, "附件1.《大连海事大学本科生创新创业竞赛列表(2026年)》.pdf": 1}}, "10": {"returned": 10, "matched": ["中国大学生计算机设计大赛", "中国高校计算机大赛", "“中国软件杯”大学生软件设计大赛"], "matched_count": 3, "sources": {"附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf": 3, "大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf": 2, "大连海事大学大学生科技创新奖励办法（正文）.pdf": 1, "2025-2中队本科生综合素质测评实施细则.pdf": 1, "附件1.《大连海事大学本科生创新创业竞赛列表(2026年)》.pdf": 2, "大连海事大学党政办公室关于印发《大连海事大学推荐优秀应届本科毕业生免试攻读硕士研究生办法》的通知.pdf": 1}}}
+
+================================================================================================
+E5  Year-scoped query: does top-k mix the 2025 and 2026 lists?
+================================================================================================
+query: 2026年大连海事大学本科生有哪些创新创业竞赛？
+
+top_k=3: {'附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf': 1, '大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf': 1, '大连海事大学大学生科技创新奖励办法（正文）.pdf': 1}
+  #1 score=0.7776 source=附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf
+  #2 score=0.7457 source=大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf
+  #3 score=0.7206 source=大连海事大学大学生科技创新奖励办法（正文）.pdf
+
+top_k=5: {'附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf': 2, '大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf': 1, '大连海事大学大学生科技创新奖励办法（正文）.pdf': 1, '大连海事大学党政办公室关于印发《大连海事大学推荐优秀应届本科毕业生免试攻读硕士研究生办法》的通知.pdf': 1}
+  #1 score=0.7776 source=附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf
+  #2 score=0.7457 source=大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf
+  #3 score=0.7206 source=大连海事大学大学生科技创新奖励办法（正文）.pdf
+
+top_k=10: {'附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf': 3, '大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf': 2, '大连海事大学大学生科技创新奖励办法（正文）.pdf': 2, '大连海事大学党政办公室关于印发《大连海事大学推荐优秀应届本科毕业生免试攻读硕士研究生办法》的通知.pdf': 1, '附件1.《大连海事大学本科生创新创业竞赛列表(2026年)》.pdf': 1, '2025-2中队本科生综合素质测评实施细则.pdf': 1}
+  #1 score=0.7776 source=附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf
+  #2 score=0.7457 source=大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf
+  #3 score=0.7206 source=大连海事大学大学生科技创新奖励办法（正文）.pdf
+
+metadata_filter={'year': 2026}:
+  returned 9 chunks, sources={'附件1.《大连海事大学本科生创新创业竞赛列表(2026年)》.pdf': 9}
+metadata_filter={'document_id': 'dlmu-competition-list-2025'}:
+  returned 10 chunks, sources={'附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf': 10}
+
+Finding: the running service calls retrieve() with no metadata_filter (backend/main.py), so an explicit year in the question does not restrict the candidate set.
+EXPERIMENT_RESULT e5 {"unfiltered_sources": {"3": {"附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf": 1, "大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf": 1, "大连海事大学大学生科技创新奖励办法（正文）.pdf": 1}, "5": {"附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf": 2, "大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf": 1, "大连海事大学大学生科技创新奖励办法（正文）.pdf": 1, "大连海事大学党政办公室关于印发《大连海事大学推荐优秀应届本科毕业生免试攻读硕士研究生办法》的通知.pdf": 1}, "10": {"附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf": 3, "大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf": 2, "大连海事大学大学生科技创新奖励办法（正文）.pdf": 2, "大连海事大学党政办公室关于印发《大连海事大学推荐优秀应届本科毕业生免试攻读硕士研究生办法》的通知.pdf": 1, "附件1.《大连海事大学本科生创新创业竞赛列表(2026年)》.pdf": 1, "2025-2中队本科生综合素质测评实施细则.pdf": 1}}, "filtered_year_2026": 9, "filtered_2025_document": 10}
+
+================================================================================================
+E6  Empty and whitespace-only content
+================================================================================================
+replace_document(id, []) removed existing records: 1 -> 0
+  empty text: rejected with ValueError
+  whitespace text: rejected with ValueError
+  empty vector: rejected with ValueError
+  zero vector: rejected with ValueError
+  chunk_text(whitespace only) -> []
+  embed_text(whitespace only) -> []
+  store size after invalid writes: 0
+EXPERIMENT_RESULT e6 {"outcomes": ["empty text: rejected with ValueError", "whitespace text: rejected with ValueError", "empty vector: rejected with ValueError", "zero vector: rejected with ValueError"], "store_size": 0}
+
+================================================================================================
+E7  Metadata filtering on the real corpus
+================================================================================================
+no filter             -> 10 chunks
+  sources: {'附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf': 4, '附件1.《大连海事大学本科生创新创业竞赛列表(2026年)》.pdf': 4, '2025-2中队本科生综合素质测评实施细则.pdf': 1, '大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf': 1}
+  years:   {2025: 5, 2026: 4, 2023: 1}
+document_type=竞赛列表  -> 10 chunks
+  sources: {'附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf': 4, '附件1.《大连海事大学本科生创新创业竞赛列表(2026年)》.pdf': 6}
+year=2026             -> 9 chunks
+  sources: {'附件1.《大连海事大学本科生创新创业竞赛列表(2026年)》.pdf': 9}
+year=1999 (no match)  -> 0 chunks (expected 0)
+document_id=请假单, top_k=50 -> 1 chunks (collection has 75)
+EXPERIMENT_RESULT e7 {"unfiltered": 10, "filtered_document_type": 10, "filtered_year_2026": 9, "no_match": 0, "oversized_top_k": 1}
+
+================================================================================================
+E8  Provenance: source and date carrying into the prompt
+================================================================================================
+SearchResult.metadata of the top chunk:
+{
+  "document_id": "dlmu-postgraduate-recommendation-2025",
+  "chunk_hash": "e18facd8c072231a451df8419a9320bfcf3fdc1bc934303e614d61d7cc86db3d",
+  "source": "大连海事大学党政办公室关于印发《大连海事大学推荐优秀应届本科毕业生免试攻读硕士研究生办法》的通知.pdf",
+  "chunk_index": 0,
+  "year": 2025,
+  "document_type": "推免办法"
+}
+
+Built RAG prompt (first 900 characters):
+请根据以下知识库资料回答用户问题。
+回答时请说明资料出处，并注意资料的适用年份与适用范围；如果资料中没有答案，请明确说明知识库中没有相关内容，不要编造。
+
+【知识库资料】
+
+[资料 1] (来源文件: 大连海事大学党政办公室关于印发《大连海事大学推荐优秀应届本科毕业生免试攻读硕士研究生办法》的通知.pdf；文档类型: 推免办法；适用年份: 2025；文档标识: dlmu-postgraduate-recommendation-2025)
+— 1 —
+连海大办字〔2025〕1号
+大连海事大学党政办公室关于印发
+《大连海事大学推荐优秀应届本科毕业生免试
+攻读硕士研究生办法》的通知
+各单位(部门):
+经学校同意,现将《大连海事大学推荐优秀应届本科毕业生
+免试攻读硕士研究生办法》予以印发,请遵照执行。
+大连海事大学党政办公室
+2025年1月16日
+
+— 2 —
+大连海事大学推荐优秀应届本科毕业生
+免试攻读硕士研究生办法
+第一条 为树立良好学风、选拔优秀人才,根据教育部《全
+国普通高等学校推荐优秀应届本科毕业生免试攻读硕士学位研究
+生工作管理办法(试行)》(教学〔2006〕14号)、《关于进一步规
+范和加强推荐优秀应届本科毕业生免试攻读研究生工作的通知》
+(教学厅〔2020〕12号)等推免工作相关文件要求,为确保推荐优
+秀应届本科毕业生免试攻读研究生(以下简称推免生)质量,保
+证此项工作公开、公正、公平地进行,制定本办法。
+第二条 组织管理
+1.学校成立校推荐优秀应届本科毕业生免试攻读硕士学位
+研究生(以下简称推免生)工作领导小组,分管教学副校长任组
+长,成员由教务处、研究生院、学生工作部、团委、创新创业学
+院部门负责人及教师代表组成。校推免生工作领导小组主要负责
+制定推免生工作实施办法、审定推免生名额分配情况、组织各学
+院实施推免生工作以及审定推免生名单等工作。
+2.教务处负责普通计划和国防科工补偿计划推免生工作的
+具体组织实施,根据国家文件负责推荐名额分配、工作日程安排、
+上报名单汇总、审核及报批、发文公示等工作。研究生院负责工
+程硕博专项推免生工作的具体组织与实施;团委负责
+...
+
+prompt contains the source filename: True
+prompt contains '来源文件':            True
+prompt contains a year field:         True
+prompt contains 'chunk_hash':         False
+EXPERIMENT_RESULT e8 {"metadata_keys": ["chunk_hash", "chunk_index", "document_id", "document_type", "source", "year"], "source_in_prompt": true, "source_label_in_prompt": true, "year_label_in_prompt": true, "chunk_hash_in_prompt": false, "prompt_chars": 3873}
+
+================================================================================================
+E9  Ablation - pre-fix vs Phase 2 corpus on the same query
+================================================================================================
+pre-fix corpus: 75 chunks, len(store)=75
+Phase 2 corpus: len(store)=75
+
+top_k      pre-fix matched   Phase 2 matched
+------------------------------------------------------------------------------------------------
+3                        0                 0
+5                        3                 3
+10                       3                 3
+
+Both corpora are scored with a ground-truth text-overlap check that NFKC-normalises the chunk text, so the only difference measured here is whether retrieval surfaced the chunk at all.
+EXPERIMENT_RESULT e9 {"3": {"prefix_matched": 0, "fixed_matched": 0, "prefix_names": [], "fixed_names": []}, "5": {"prefix_matched": 3, "fixed_matched": 3, "prefix_names": ["中国大学生计算机设计大赛", "中国高校计算机大赛", "“中国软件杯”大学生软件设计大赛"], "fixed_names": ["中国大学生计算机设计大赛", "中国高校计算机大赛", "“中国软件杯”大学生软件设计大赛"]}, "10": {"prefix_matched": 3, "fixed_matched": 3, "prefix_names": ["中国大学生计算机设计大赛", "中国高校计算机大赛", "“中国软件杯”大学生软件设计大赛"], "fixed_names": ["中国大学生计算机设计大赛", "中国高校计算机大赛", "“中国软件杯”大学生软件设计大赛"]}}
+
+================================================================================================
+E10  Per-chunk score effect of the repair (2026 list only)
+================================================================================================
+raw chunks: 9   Phase 2 chunks: 9
+query: 中国大学生计算机设计大赛是什么级别的竞赛？
+
+ chunk   pre-fix cos   Phase 2 cos     delta  radicals   text head
+--------------------------------------------------------------------------------------------------------
+     0      0.612652      0.626446  0.013795        99   竞赛|序号|竞赛名称|指导单位/主办单位|赛道编号|认定赛道|类别
+     1      0.612755      0.609375 -0.003380        92   1201|创新赛道(机器人创新赛、人工智能创新赛)|1202|应用赛
+     2      0.666180      0.709721  0.043542        43   工业和信息化部人才交流中心、中国通信企业协会|中国大学生计算机设计大
+     3      0.638712      0.665318  0.026606        73   26|华为ICT大赛|华为生态大学|2601|主赛道|A|2701
+     4      0.594650      0.618242  0.023592        93   38|全国大学生市场调查与分析大赛|教育部高等学校统计学类专业教学指
+     5      0.581974      0.618172  0.036198        42   59|杰赛普(Jessup)国际法模拟法庭辩论赛中国赛区选拔赛|Je
+     6      0.597557      0.616317  0.018760        95   6001|辩论|6002|演讲|6003|综合能力赛|61|“21世
+     7      0.630709      0.647246  0.016536        28   部高等学校软件工程专业教学指导委员会、教育部高|等学校大学计算机课程
+     8      0.563313      0.577896  0.014583        66   82|全国海洋航行器设计与制作大赛|教育部海洋工程类专业教学指导委员
+
+chunks whose score improved: 8 / 9
+chunks whose score unchanged: 0 / 9
+largest improvement: +0.043542
+largest regression:  -0.003380
+
+Interpretation: only chunks that actually contain compatibility characters move. This is a bounded correction of a text-extraction defect, not a general retrieval-quality improvement.
+EXPERIMENT_RESULT e10 [{"chunk_index": 0, "radicals": 99, "before": 0.612652, "after": 0.626446, "delta": 0.013795}, {"chunk_index": 1, "radicals": 92, "before": 0.612755, "after": 0.609375, "delta": -0.00338}, {"chunk_index": 2, "radicals": 43, "before": 0.66618, "after": 0.709721, "delta": 0.043542}, {"chunk_index": 3, "radicals": 73, "before": 0.638712, "after": 0.665318, "delta": 0.026606}, {"chunk_index": 4, "radicals": 93, "before": 0.59465, "after": 0.618242, "delta": 0.023592}, {"chunk_index": 5, "radicals": 42, "before": 0.581974, "after": 0.618172, "delta": 0.036198}, {"chunk_index": 6, "radicals": 95, "before": 0.597557, "after": 0.616317, "delta": 0.01876}, {"chunk_index": 7, "radicals": 28, "before": 0.630709, "after": 0.647246, "delta": 0.016536}, {"chunk_index": 8, "radicals": 66, "before": 0.563313, "after": 0.577896, "delta": 0.014583}]
+
+================================================================================================
+DONE
+================================================================================================
