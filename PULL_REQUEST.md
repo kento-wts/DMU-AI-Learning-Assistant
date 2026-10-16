@@ -27,6 +27,25 @@
    一起提交，使克隆后无需重建即可运行；未解决的问题集中记录在
    [`OPEN_ISSUES.md`](OPEN_ISSUES.md)（见下方专节）。
 
+## 相对 main 的完整改动
+
+**48 个文件，+10,368 / −41 行。** 按分组看：
+
+| 分组 | 文件 | 内容 |
+| --- | --- | --- |
+| 知识库修复 | `embedding.py`、`pdf_loader.py`、`prompt_builder.py`、`ingest.py` | P1（NFKC 双侧归一化）、P2（`max_chars` 透传）、P3（prompt 携带来源与年份） |
+| 新增入库脚本 | `build_index.py`、`export_chunks.py` | 批量入库 / 导出文本与切片 |
+| 测试 | 修改 4 个、新增 3 个（含 `test_build_index.py`、`test_evaluation_dataset.py`、`test_knowledge_documents.py`） | 87 → 128 个用例 |
+| 问题集 | `evaluation_dataset.json` | 1 → 22 条，带标准答案与期望行为 |
+| 数据产物 | `data/chroma/`、`data/exports/` | 向量库（75 条）与各阶段文件，新纳入版本控制 |
+| 验证工具 | `tools/rag_verification/`（10 个文件） | 只读验证脚本与实验存档 |
+| 文档 | `README.md`（整体重写）、`RAG_VERIFICATION.md`、`OPEN_ISSUES.md`、`PULL_REQUEST.md` | —— |
+| 仓库配置 | `.gitattributes`（新增）、`.gitignore`（调整） | 行尾规范化；放开 `data/` 下两处产物 |
+| **未改动** | `backend/main.py`、`backend/rag_chat.py`、`frontend/` | **主流程与前端一行未动** |
+
+主流程未改是刻意的：O1（元数据过滤未接入）需要改 `main.py`，属公共接口变更，
+按约定留待负责人决策，详见 [`OPEN_ISSUES.md`](OPEN_ISSUES.md)。
+
 ## 关键发现（都附复现方式）
 
 ### 1. 重复入库是安全的 ✅
@@ -210,6 +229,16 @@ python tools/rag_verification/verify_rag.py         # E1–E10
 
 > 注意：向量库是二进制且体积不小，重新生成会产生整块 diff。若要回到「不入库、克隆后自行重建」，
 > 把 `.gitignore` 里对应说明注释恢复成 `data/chroma/` 与 `data/exports/` 两行即可。
+
+### 测试
+
+| 阶段 | 命令 | 结果 |
+| --- | --- | --- |
+| 本 PR 最终状态 | `python -m unittest discover -s backend -t . -p "test_*.py"` | `Ran 128 tests in 16.097s` → **OK**，退出码 0 |
+
+新增的 `test_build_index.py`（6 个用例）守护入库文档表：磁盘上每个 PDF 都在表里、
+表里每个条目都有对应文件、`document_id` 不重复、且与来源清单逐条一致——
+防止有人改错 `document_id` 导致检索过滤静默失效。
 
 ### 未解决的问题
 

@@ -115,8 +115,14 @@ for the review also carry:
 field so `backend/knowledge/evaluate_retrieval.py` still renders it unchanged.
 
 The set is a **spot-check sample, not a benchmark**: 16 questions have an
-expected document, 4 are deliberate corpus gaps and 2 are scope traps. No
-accuracy, recall or precision figure may be derived from it.
+expected document, 4 are marked as corpus gaps, 1 is an extraction-unreliable
+case and 1 is a scope trap. No accuracy, recall or precision figure may be
+derived from it.
+
+> Two of the four corpus-gap entries (`q18` 转专业, `q20` 补考/重修) are
+> **mislabelled**: that content is in the non-navigation status rules, and the
+> earlier "0 hits" reading came from a line-based grep that misses words split
+> across hard line breaks. See `OPEN_ISSUES.md` P1-1.
 
 ## Reference output
 
@@ -153,10 +159,15 @@ stable across re-runs.
   retrieval is pointed at the right documents, **not** an accuracy figure: the
   ground truth is partial, the questions were written by the same person who
   read the documents, and nobody has judged the returned chunks yet.
-- The corpus gaps are the interesting part. The question "转专业的申请条件是什么"
-  is absent from all ten documents, yet it still returns chunks scoring up to
-  **0.7379** - higher than the top hit of several genuinely answerable
-  questions. There is no minimum-score threshold in the pipeline, so nothing
-  separates "answered from a document" from "closest unrelated chunk". Treat any
-  answer score below roughly 0.75 as unproven, and do not quote a threshold as
-  policy until the owner sets one.
+- The corpus gaps are the interesting part. The question "大学生创新创业训练计划
+  （大创）项目应该怎么申报" really is absent from all ten documents, yet it still
+  returns a chunk scoring **0.6590** - while the weakest genuinely answerable
+  question scores **0.6346**. The two ranges overlap, so no single cut-off can
+  keep every answerable question *and* reject every unanswerable one, and the
+  pipeline has no minimum-score threshold at all. Treat a low score as unproven
+  rather than as an answer, and do not quote a threshold as policy until the
+  owner sets one.
+- **Correction**: an earlier version of this note used "转专业的申请条件是什么" as
+  the corpus-gap example and quoted 0.7379. That topic *is* covered by the
+  non-navigation status rules, so the example was wrong (same root cause as the
+  mislabelled dataset entries above).
