@@ -23,6 +23,9 @@
 5. 把**未修复的问题与未验证的风险**全部列清楚，没有夸大结论。
 6. **阶段二补充**：把带标准答案的问题集从 1 条扩到 **22 条**，
    新增逐题检索核对记录与问题集护栏测试（见下方专节）。
+7. **阶段三补充**：把 PDF 入库流程固化成可重跑的脚本，并把**向量库与各阶段产物**
+   一起提交，使克隆后无需重建即可运行；未解决的问题集中记录在
+   [`OPEN_ISSUES.md`](OPEN_ISSUES.md)（见下方专节）。
 
 ## 关键发现（都附复现方式）
 
@@ -177,6 +180,41 @@ python tools/rag_verification/verify_rag.py         # E1–E10
 **比多道可答题的 #1 还高**，这正是 L3（无最低分阈值）的量化证据。
 
 测试数 **114 → 122**（新增 8 个问题集护栏用例），全部通过。
+
+## 阶段三：入库流程与各阶段产物
+
+### 两个可重跑的脚本
+
+| 脚本 | 作用 | 是否写向量库 |
+| --- | --- | --- |
+| `backend/knowledge/build_index.py` | PDF → 文本 → chunk → 向量 → `data/chroma` | ✅ |
+| `backend/knowledge/export_chunks.py` | PDF → 抽取文本 + chunk 文件 | ❌（不需要向量模型，秒级） |
+
+两者都是幂等的；`build_index` 为每份文档使用**显式 `document_id`**，
+避免默认的「绝对路径」身份在换机器/换目录后写入两套记录。
+
+### 一并提交的产物
+
+原先 `data/chroma/` 与 `data/exports/` 被 `.gitignore` 忽略，导致克隆后必须先重建才能运行。
+本阶段把这两处产物纳入版本控制（仍然忽略 `.env`、`node_modules/` 等本机环境文件）：
+
+| 产物 | 内容 | 规模 |
+| --- | --- | --- |
+| `data/chroma/` | 向量库（collection `knowledge_chunks`） | 75 条 / 10 份文档 / 3.8 MB |
+| `data/exports/text/*.txt` | 每份文档的抽取文本 | 10 个文件，共 67,792 字符 |
+| `data/exports/chunks.jsonl` | 一行一个 chunk，含全文与全部 metadata | 75 行 |
+| `data/exports/chunks-overview.md` | 可读索引（每块长度与首行预览） | 5.9 KB |
+
+交叉校验（`build_index` 与 `export_chunks` 产出一致性）：库中块数 = jsonl 行数 = **75**，
+每份文档都有对应文本文件，空块 0，最长 chunk 1195 字符（上限 1200）。
+
+> 注意：向量库是二进制且体积不小，重新生成会产生整块 diff。若要回到「不入库、克隆后自行重建」，
+> 把 `.gitignore` 里对应说明注释恢复成 `data/chroma/` 与 `data/exports/` 两行即可。
+
+### 未解决的问题
+
+集中记录在 [`OPEN_ISSUES.md`](OPEN_ISSUES.md)：3 个 P0（元数据过滤未接入、默认 `top_k` 过小、
+无最低分阈值）、4 个 P1（数据质量）、2 个 P2（环境与链路缺口），并汇总了需要负责人拍板的 6 项决策。
 
 ## 知识材料来源
 
