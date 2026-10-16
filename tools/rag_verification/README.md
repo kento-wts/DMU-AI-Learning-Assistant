@@ -82,6 +82,42 @@ Results print to stdout and are also written to
 `verification-report.txt` (git-ignored) and to
 `reference/baseline-verification-report.txt` (committed).
 
+### `check_retrieval.py` — retrieval check record for the curated questions
+
+```powershell
+python tools/rag_verification/check_retrieval.py
+```
+
+Builds a throwaway corpus and runs every question in
+`backend/knowledge/evaluation_dataset.json` through the real `Retriever`, then
+records, per question: the curated expectation, every returned chunk with its
+score / `document_id` / source file, and which curated ground-truth points
+appear verbatim in the returned text. Each entry ends with a blank human-review
+line, so the file doubles as a tick-off sheet.
+
+Like `verify_rag.py`, it never opens `data/chroma`. Output goes to
+`retrieval-check-record.txt` (git-ignored) and to
+`reference/retrieval-check-record.txt` (committed).
+
+## Curated question set
+
+`backend/knowledge/evaluation_dataset.json` holds the questions with their
+standard answers. Every entry has `id`, `question` and `notes`; entries added
+for the review also carry:
+
+| Field | Meaning |
+| --- | --- |
+| `expected_behaviour` | `answerable` / `not_in_corpus` / `scope_mismatch` / `not_reliably_answerable_from_text` |
+| `expected_document_ids` | the document(s) the answer must come from; empty means "should not be answered from the corpus" |
+| `ground_truth_points` | verbatim statements the answer has to contain, each of which `verify_inventory.py` can re-check against the shipped PDFs |
+
+`q1` is the original entry and keeps its historical `relevant_competitions`
+field so `backend/knowledge/evaluate_retrieval.py` still renders it unchanged.
+
+The set is a **spot-check sample, not a benchmark**: 16 questions have an
+expected document, 4 are deliberate corpus gaps and 2 are scope traps. No
+accuracy, recall or precision figure may be derived from it.
+
 ## Reference output
 
 `reference/` holds the artefacts produced during the `feat/rag-verification`
@@ -90,6 +126,7 @@ work:
 | File | Produced by |
 | --- | --- |
 | `baseline-verification-report.txt` | `verify_rag.py` |
+| `retrieval-check-record.txt` | `check_retrieval.py` |
 | `inventory-verification.txt` | `verify_inventory.py` |
 | `pdf-extraction-dump.txt` | `dump_pdf_meta.py` |
 | `pdf-inventory.json` | `dump_pdf_meta.py` |
@@ -111,5 +148,15 @@ stable across re-runs.
 - E9 shows **no change in top-k hit counts**. The repair in P1 corrects a
   definite vector defect (E3, E10) but does not by itself move the ranking of the
   one curated query. Do not report it as an accuracy improvement.
-- The curated dataset has exactly one query. No overall accuracy figure can be
-  derived from it.
+- `check_retrieval.py` reached the expected document in top_3 for every one of
+  the 16 questions that have an expected document. That is a smoke test that
+  retrieval is pointed at the right documents, **not** an accuracy figure: the
+  ground truth is partial, the questions were written by the same person who
+  read the documents, and nobody has judged the returned chunks yet.
+- The corpus gaps are the interesting part. The question "转专业的申请条件是什么"
+  is absent from all ten documents, yet it still returns chunks scoring up to
+  **0.7379** - higher than the top hit of several genuinely answerable
+  questions. There is no minimum-score threshold in the pipeline, so nothing
+  separates "answered from a document" from "closest unrelated chunk". Treat any
+  answer score below roughly 0.75 as unproven, and do not quote a threshold as
+  policy until the owner sets one.

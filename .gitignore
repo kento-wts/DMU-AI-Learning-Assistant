@@ -163,5 +163,6 @@ vite.config.ts.timestamp-*
 
 # RAG verification tooling: regenerated on every run, do not commit
 tools/rag_verification/verification-report.txt
+tools/rag_verification/retrieval-check-record.txt
 tools/rag_verification/reference/pdf-text/
 

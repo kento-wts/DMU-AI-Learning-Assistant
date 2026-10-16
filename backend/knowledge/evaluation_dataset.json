@@ -9,5 +9,226 @@
       "“中国软件杯”大学生软件设计大赛"
     ],
     "notes": "Ground Truth 当前为人工标注候选结果，后续需要根据实际 Chunk 内容进一步确认。"
+  },
+  {
+    "id": "q2",
+    "question": "大连海事大学推荐优秀应届本科毕业生免试攻读硕士研究生办法的文号和施行日期是什么？",
+    "expected_behaviour": "answerable",
+    "expected_document_ids": ["dlmu-postgraduate-recommendation-2025"],
+    "ground_truth_points": [
+      "文号：连海大办字〔2025〕1号",
+      "印发日期：2025年1月16日",
+      "第十五条 本办法自2025年1月10日起施行",
+      "同时废止 连海大办字〔2021〕16号"
+    ],
+    "notes": "四条断言均可由 verify_inventory.py 自动复核。"
+  },
+  {
+    "id": "q3",
+    "question": "学校现行的《大连海事大学大学生创新创业竞赛管理办法》是哪个文号？什么时候印发的？",
+    "expected_behaviour": "answerable",
+    "expected_document_ids": ["dlmu-innovation-competition-rules-2023"],
+    "ground_truth_points": [
+      "文号：连海大办字〔2023〕7 号",
+      "印发日期：2023 年 7 月 6 日"
+    ],
+    "notes": ""
+  },
+  {
+    "id": "q4",
+    "question": "大连海事大学大学生科技创新奖励办法从什么时候开始执行？它取代了此前的哪份文件？",
+    "expected_behaviour": "answerable",
+    "expected_document_ids": ["dlmu-innovation-award-2024"],
+    "ground_truth_points": [
+      "第十四条 本办法自 2024 年4 月 24 日起执行",
+      "废止 连海大办字〔2019〕20号"
+    ],
+    "notes": ""
+  },
+  {
+    "id": "q5",
+    "question": "大连海事大学学生违纪处分办法的文号和施行日期是什么？它取代了哪份文件？",
+    "expected_behaviour": "answerable",
+    "expected_document_ids": ["dlmu-discipline-2022"],
+    "ground_truth_points": [
+      "文号：连海大校发〔2022〕194 号",
+      "第六十二条 本办法自 2022 年 9 月 11 日起施行",
+      "废止 连海大校发〔2017〕329 号"
+    ],
+    "notes": ""
+  },
+  {
+    "id": "q6",
+    "question": "大连海事大学非航海类专业本科生学籍管理规定适用于哪些学生？什么时候开始施行？",
+    "expected_behaviour": "answerable",
+    "expected_document_ids": ["dlmu-status-rules-2021"],
+    "ground_truth_points": [
+      "适用于我校非航海类专业普通全日制本科生",
+      "印发日期：2021 年11 月5 日",
+      "第五十一条 本规定自 2021 年 11 月 10 日起施行"
+    ],
+    "notes": "该文件为 2021 年发布，仓库内无法核实是否有更新版本，报告第 4.1 节已标记为待核实。"
+  },
+  {
+    "id": "q7",
+    "question": "大连海事大学本科生奖学金评定办法的文号是什么？什么时候施行的？",
+    "expected_behaviour": "answerable",
+    "expected_document_ids": ["dlmu-scholarship-2023"],
+    "ground_truth_points": [
+      "文号：连海大办字〔2023〕13 号",
+      "施行日期：2023 年 7 月 12 日"
+    ],
+    "notes": "该文件施行条款的原文断言在「自 2023」处截断，因此只以文号与已核验日期作为标准答案。"
+  },
+  {
+    "id": "q8",
+    "question": "《2025-2中队本科生综合素质测评实施细则》适用于哪些学生？什么时候起施行？",
+    "expected_behaviour": "answerable",
+    "expected_document_ids": ["dlmu-xinxikexue-2025-2-assessment"],
+    "ground_truth_points": [
+      "仅适用于信息科学技术学院2025-2中队在籍全日制本科学生（即 2025 级 2 中队）",
+      "第二十四条 本办法自2025年10月1日起施行"
+    ],
+    "notes": "该文件无文号、无发布日期，year=2025 属于入库时的归类，不是发布日期。"
+  },
+  {
+    "id": "q9",
+    "question": "大连海事大学的创新创业竞赛分为几类？依据哪一条划分？每一类是怎么定义的？",
+    "expected_behaviour": "answerable",
+    "expected_document_ids": ["dlmu-innovation-competition-rules-2023"],
+    "ground_truth_points": [
+      "第四条 本办法适用的创新创业竞赛分为三类",
+      "A 类：由联合国专门机构或国际学术组织，教育部、科技部、团中央等政府部门和教育部高等学校教学指导委员会主办的具有重大影响的综合性国家（国际）级及其省部（地区）级竞赛",
+      "B 类：上述主体以及重要的国家级学术组织、行业学会（协会）主办的具有较大影响的国家（国际）级及其省部（地区）级竞赛",
+      "C 类：由国际、国家级学术组织或行业学会（协会）主办的具有一定影响的国家（国际）级及其省部（地区）级竞赛",
+      "具体赛事及类别见附件 1，附件 1 根据竞赛变化情况定期修订"
+    ],
+    "notes": "A 类定义在 PDF 中跨页，抽取文本被分页符打断，标准答案按语义拼接。"
+  },
+  {
+    "id": "q10",
+    "question": "综合素质测评的结果会被用在哪些方面？",
+    "expected_behaviour": "answerable",
+    "expected_document_ids": ["dlmu-xinxikexue-2025-2-assessment"],
+    "ground_truth_points": [
+      "第三条：综合素质测评结果作为奖助学金评定、推优入党、荣誉称号评定、推免研究生及推荐毕业生就业等的主要依据"
+    ],
+    "notes": ""
+  },
+  {
+    "id": "q11",
+    "question": "国家奖学金由谁出资设立？用于奖励哪一类学生？奖励标准和名额怎么确定？",
+    "expected_behaviour": "answerable",
+    "expected_document_ids": ["dlmu-scholarship-2023"],
+    "ground_truth_points": [
+      "第五条 国家奖学金由中央政府出资设立，用于奖励二年级及以上的本科学生中特别优秀的学生",
+      "奖励标准和名额按照教育部文件执行"
+    ],
+    "notes": "知识库里只有评定办法，没有教育部的当年名额文件，因此「今年的名额是多少」不可答。"
+  },
+  {
+    "id": "q12",
+    "question": "专业奖学金是面向哪类学生的？一等奖的金额和比例是多少？",
+    "expected_behaviour": "answerable",
+    "expected_document_ids": ["dlmu-scholarship-2023"],
+    "ground_truth_points": [
+      "第六条 专业奖学金由学校出资设立，用于奖励航海类专业二年级及以上的本科学生中综合素质优秀的学生",
+      "一等奖：2000 元/人·年，占参评学生总数的 2%"
+    ],
+    "notes": "与 q22 的范围陷阱区分：学籍管理规定只适用非航海类，但专业奖学金恰恰面向航海类。"
+  },
+  {
+    "id": "q13",
+    "question": "推免办法适用于哪些年级的本科学生？",
+    "expected_behaviour": "answerable",
+    "expected_document_ids": ["dlmu-postgraduate-recommendation-2025"],
+    "ground_truth_points": [
+      "适用于2022级及以后年级本科学生"
+    ],
+    "notes": ""
+  },
+  {
+    "id": "q14",
+    "question": "学生违纪处分办法的适用范围包括哪些学生？",
+    "expected_behaviour": "answerable",
+    "expected_document_ids": ["dlmu-discipline-2022"],
+    "ground_truth_points": [
+      "我校接受普通高等学历教育的研究生、本科生",
+      "继续教育学生、港澳台侨学生、留学生、结业生参照执行"
+    ],
+    "notes": ""
+  },
+  {
+    "id": "q15",
+    "question": "2026 年度学校认定的本科生创新创业竞赛列表里包含「中国大学生计算机设计大赛」吗？",
+    "expected_behaviour": "answerable",
+    "expected_document_ids": ["dlmu-competition-list-2026"],
+    "ground_truth_points": [
+      "包含：NFKC 归一化后的 2026 列表抽取文本中出现该名称"
+    ],
+    "notes": "跨年份区分用例。竞赛列表按列抽取，名称可能与类别/承办单位错位；同一竞赛在两张列表里的写法可能不同（ACM-ICPC 在 2025 列表中带空格且跨行、在 2026 列表中紧连）。"
+  },
+  {
+    "id": "q16",
+    "question": "学校 2026 年认定的竞赛名单和 2025 年的名单是同一份材料吗？想查 2026 年认定的竞赛应该看哪一份？",
+    "expected_behaviour": "answerable",
+    "expected_document_ids": ["dlmu-competition-list-2026"],
+    "ground_truth_points": [
+      "不是同一份：知识库中存在 2025 年与 2026 年两份独立的竞赛列表",
+      "2026 年的问题应参考 2026 年列表（2025 列表对 2026 年问题属历史资料）"
+    ],
+    "notes": "用于检验跨年份混检：不加年份过滤时 2026 列表可能排不进 top_3。"
+  },
+  {
+    "id": "q17",
+    "question": "2026 年信息科学技术学院承办的 A 类创新创业竞赛有哪些？",
+    "expected_behaviour": "not_reliably_answerable_from_text",
+    "expected_document_ids": ["dlmu-competition-list-2026"],
+    "ground_truth_points": [],
+    "notes": "竞赛列表按列分离抽取：序号 / 竞赛名称 / 指导单位 / 赛道编号 / 类别 / 校内承办单位 各自成段，部分行类别单元格为空，因此「某竞赛属于 A 类且由信息学院承办」无法仅凭抽取文本可靠确立。作为已知局限案例保留，标准答案待人工逐行核对原表后补。"
+  },
+  {
+    "id": "q18",
+    "question": "大连海事大学转专业的申请条件是什么？",
+    "expected_behaviour": "not_in_corpus",
+    "expected_document_ids": [],
+    "ground_truth_points": [],
+    "notes": "语料缺口：全部 10 份文档的抽取文本中「转专业」出现 0 次。期望检索结果不应给出肯定性答案。"
+  },
+  {
+    "id": "q19",
+    "question": "大学生创新创业训练计划（大创）项目应该怎么申报？",
+    "expected_behaviour": "not_in_corpus",
+    "expected_document_ids": [],
+    "ground_truth_points": [],
+    "notes": "语料缺口：「大创」「国家级大学生创新创业训练」均 0 命中；知识库只有竞赛管理办法与竞赛列表，没有项目管理办法。"
+  },
+  {
+    "id": "q20",
+    "question": "课程考试不及格后的补考和重修是怎么安排的？",
+    "expected_behaviour": "not_in_corpus",
+    "expected_document_ids": [],
+    "ground_truth_points": [],
+    "notes": "语料缺口：「补考」「重修」「考试安排」均 0 命中。"
+  },
+  {
+    "id": "q21",
+    "question": "2026 年校内竞赛的报名时间和截止日期是什么时候？",
+    "expected_behaviour": "not_in_corpus",
+    "expected_document_ids": [],
+    "ground_truth_points": [],
+    "notes": "语料缺口：「报名时间」0 命中；知识库只有认定名单，没有报名通知。"
+  },
+  {
+    "id": "q22",
+    "question": "我是航海类专业的学生，综合素质测评是怎么计算的？",
+    "expected_behaviour": "scope_mismatch",
+    "expected_document_ids": [],
+    "ground_truth_points": [
+      "知识库内的综合素质测评实施细则仅适用于信息科学技术学院 2025 级 2 中队",
+      "学籍管理规定仅适用于非航海类专业普通全日制本科生",
+      "因此该问题不应被直接回答为「这就是你的测评办法」"
+    ],
+    "notes": "范围陷阱用例。注意专业奖学金（q12）确实面向航海类专业，不要与测评细则混为一谈。"
   }
 ]
