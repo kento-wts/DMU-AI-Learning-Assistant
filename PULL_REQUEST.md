@@ -3,11 +3,14 @@
 - 仓库：`https://github.com/kento-wts/DMU-AI-Learning-Assistant.git`
 - 分支：`feat/rag-verification`
 - 基线：`main` = `379b6e8 feat: make RAG ingestion idempotent`
-- 分支顶端提交（以 `git log` 为准，本文件所在提交即最新一个）：
+- 分支顶端提交（以 `git log` 为准）：
   1. `feat(knowledge): verify retrieval and fix knowledge-base reliability defects`
      —— 代码与测试
   2. `docs: add the PR description for feat/rag-verification`
   3. `docs: correct the baseline note to the real repo history`
+  4. `docs: record the re-verified run and fix the stale delivery note`
+     —— 修正报告第 6 节的过期说明（原先误写"仓库无 remote"）、把
+     `verify_rag.py` 的元数据样本改为 key-sorted 输出、补记本次复核结果
 - 完整报告：[`RAG_VERIFICATION.md`](RAG_VERIFICATION.md)
 
 ## 这个 PR 做了什么
@@ -132,6 +135,21 @@ python tools/rag_verification/dump_pdf_meta.py
 python tools/rag_verification/verify_inventory.py   # 45 条断言 PASS
 python tools/rag_verification/verify_rag.py         # E1–E10
 ```
+
+### 推送前的复核（2026-10-16，本机重跑）
+
+| 命令 | 实际结果 |
+| --- | --- |
+| `python -m unittest discover -s backend -t . -p "test_*.py"` | `Ran 114 tests in 13.524s ... OK`，进程退出码 **0**（可直接作 CI 门禁） |
+| `python tools/rag_verification/verify_inventory.py` | `documents checked: 10   text claims verified: 45`，`PASS` |
+| `python tools/rag_verification/verify_rag.py` | E1 共 75 chunks、每份文档 `compatibility_chars = 0`；E2 `duplicate ids = 0`、`PASS`；E5 无过滤时 top_3 = 2025 列表 + 2023 办法 + 2024 奖励，`year=2026` 时 9 条全部来自 2026 列表；E7 `year=1999` 返回 0 条、`top_k=50` 命中单文档时返回 1 条；E10 9 个 chunk 中 8 个分数上升 |
+
+以上数字与报告 2.3 节一致。说明两点：
+
+1. 报告开头的 `repository root` 与临时 Chroma 目录是运行机器的绝对路径，
+   换机器必然不同，不属于有效差异（已写进 `tools/rag_verification/README.md`）。
+2. E8 的 metadata 样本原本随词典顺序变化，现已改为 `sort_keys` 输出；
+   连续两次运行在去掉上述两行后**逐行一致**。
 
 ## 知识材料来源
 
