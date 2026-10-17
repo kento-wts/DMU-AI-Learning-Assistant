@@ -1,15 +1,15 @@
 ================================================================================================
 Retrieval check record - curated question set
 ================================================================================================
-repository root:  C:\Users\zwk\Documents\Codex\DMU-AI-Learning-Assistant
-dataset:          C:\Users\zwk\Documents\Codex\DMU-AI-Learning-Assistant\backend\knowledge\evaluation_dataset.json
+repository root:  <repo root>
+dataset:          backend\knowledge\evaluation_dataset.json
 questions:        24
 top_k:            5
 
 A quote appearing below only means the text was retrieved. It is not a
 relevance verdict and not recall; a human still has to read the chunk.
 
-throwaway Chroma dir (the repo index is never opened): C:\Users\zwk\AppData\Local\Temp\tmpvzw4x1tn\chroma
+throwaway Chroma dir (the repo index is never opened): <temp>/chroma
 corpus chunks: 75   len(store): 75
 
 ------------------------------------------------------------------------------------------------

@@ -733,14 +733,16 @@ def main() -> int:
 
     report = Report()
     report.write("DMU AI Learning Assistant - RAG verification harness")
-    report.write(f"repository root: {REPO_ROOT}")
+    # Placeholders, not absolute paths: this report is committed, and a personal
+    # machine path is both a privacy leak and pointless diff noise.
+    report.write("repository root: <repo root>")
     report.write(f"documents:       {len(_pdf_paths())} PDF files")
 
     with tempfile.TemporaryDirectory(
         prefix="rag-verify-", ignore_cleanup_errors=True
     ) as temp_dir:
         persist_dir = Path(temp_dir) / "chroma"
-        report.write(f"throwaway Chroma dir (the repo index is never opened): {persist_dir}")
+        report.write("throwaway Chroma dir (the repo index is never opened): <temp>/chroma")
 
         steps = (
             lambda: e1_real_ingest(report, persist_dir),

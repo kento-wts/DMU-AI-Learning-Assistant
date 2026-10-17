@@ -142,11 +142,12 @@ work:
 All three scripts rewrite the file they own. That is expected; only commit a
 change when the new output is the one you intend to stand behind.
 
-`reference/baseline-verification-report.txt` opens with the absolute repository
-path and the throwaway temp directory of the machine that produced it, so those
-two lines differ on every machine and are not a meaningful diff. Everything
-below them is measured output; the metadata dump is key-sorted so it stays
-stable across re-runs.
+`reference/baseline-verification-report.txt` and
+`reference/retrieval-check-record.txt` open with **placeholder** paths
+(`<repo root>`, `<temp>/chroma`) rather than the absolute paths of the machine
+that produced them, so the committed copies carry no personal path and do not
+churn between runs. Everything below them is measured output; the metadata dump
+is key-sorted so it stays stable across re-runs.
 
 ## Interpreting the numbers honestly
 

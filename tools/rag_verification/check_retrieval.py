@@ -89,8 +89,9 @@ def main(argv: list[str] | None = None) -> int:
     emit("=" * 96)
     emit("Retrieval check record - curated question set")
     emit("=" * 96)
-    emit(f"repository root:  {REPO_ROOT}")
-    emit(f"dataset:          {args.dataset}")
+    # Placeholders / relative paths only: this record is committed.
+    emit("repository root:  <repo root>")
+    emit(f"dataset:          {args.dataset.relative_to(REPO_ROOT) if args.dataset.is_relative_to(REPO_ROOT) else '<custom>'}")
     emit(f"questions:        {len(dataset)}")
     emit(f"top_k:            {args.top_k}")
     emit("")
@@ -106,7 +107,7 @@ def main(argv: list[str] | None = None) -> int:
         )
         try:
             chunk_count = harness._ingest_corpus(store, load_pdf_text, embed_text)
-            emit(f"throwaway Chroma dir (the repo index is never opened): {persist_dir}")
+            emit("throwaway Chroma dir (the repo index is never opened): <temp>/chroma")
             emit(f"corpus chunks: {chunk_count}   len(store): {len(store)}")
             emit("")
 

@@ -4,11 +4,13 @@ __pycache__/
 *.py[cod]
 .venv/
 
-# Knowledge-base artefacts are tracked on purpose so a fresh clone can run
-# without rebuilding: data/chroma holds the built vector index, data/exports
-# the extracted text and the chunk files.
-#   rebuild: python -m backend.knowledge.build_index
-#   exports: python -m backend.knowledge.export_chunks
+# Knowledge-base build artefacts are generated, not source. The PDFs under
+# backend/knowledge/documents/ are the single authoritative input; the index and
+# the exports are rebuilt from them by script (see README "快速开始").
+#   python -m backend.knowledge.build_index     # -> data/chroma/
+#   python -m backend.knowledge.export_chunks   # -> data/exports/
+data/chroma/
+data/exports/
 
 # Node
 node_modules/

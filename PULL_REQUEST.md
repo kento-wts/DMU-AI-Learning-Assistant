@@ -37,7 +37,7 @@
 | 新增入库脚本 | `build_index.py`、`export_chunks.py` | 批量入库 / 导出文本与切片 |
 | 测试 | 修改 5 个、新增 4 个（含 `test_build_index.py`、`test_evaluation_dataset.py`、`test_knowledge_documents.py`、`test_query_filters.py`） | 87 → 143 个用例 |
 | 问题集 | `evaluation_dataset.json` | 1 → **24 条**，带标准答案与期望行为（阶段三修正了 q18/q20 两处错误标注） |
-| 数据产物 | `data/chroma/`、`data/exports/` | 向量库（75 条）与各阶段文件，新纳入版本控制 |
+| 数据产物 | —（不入库） | 向量库（75 条）与导出文件改为生成物，由脚本重建，见 `KNOWLEDGE_ARTIFACTS.md` |
 | 验证工具 | `tools/rag_verification/`（10 个文件） | 只读验证脚本与实验存档 |
 | 文档 | `README.md`（整体重写）、`RAG_VERIFICATION.md`、`OPEN_ISSUES.md`、`PULL_REQUEST.md` | —— |
 | 仓库配置 | `.gitattributes`（新增）、`.gitignore`（调整） | 行尾规范化；放开 `data/` 下两处产物 |
@@ -143,14 +143,15 @@ O1 的实现只覆盖"问题里显式写出的单一文档年份"这一种情况
 
 ## 测试
 
-**当前测试总数：143**（阶段一 87 → 阶段二 114 → 阶段三 128 → 阶段四 143）。下表按阶段记录当时的输出。
+**当前测试总数：154**（87 → 114 → 128 → 143 → 154）。下表按阶段记录当时的输出。
 
 ```powershell
 python -m unittest discover -s backend -t . -p "test_*.py"
 # 阶段一 修复前：Ran 87 tests ... OK
 # 阶段一 修复后：Ran 114 tests ... OK
 # 阶段三：      Ran 128 tests ... OK
-# 阶段四 当前：  Ran 143 tests ... OK
+# 阶段四：      Ran 143 tests ... OK
+# 阶段五 当前：  Ran 154 tests ... OK
 ```
 
 新增用例：
@@ -226,29 +227,27 @@ python tools/rag_verification/verify_rag.py         # E1–E10
 两者都是幂等的；`build_index` 为每份文档使用**显式 `document_id`**，
 避免默认的「绝对路径」身份在换机器/换目录后写入两套记录。
 
-### 一并提交的产物
+### 产物策略：源文件入库，生成物不入库
 
-原先 `data/chroma/` 与 `data/exports/` 被 `.gitignore` 忽略，导致克隆后必须先重建才能运行。
-本阶段把这两处产物纳入版本控制（仍然忽略 `.env`、`node_modules/` 等本机环境文件）：
+`data/chroma/` 与 `data/exports/` 是**生成物**，已从版本库移除并在 `.gitignore` 中排除；
+权威输入只有 `backend/knowledge/documents/` 下的 10 份 PDF。
+完整理由与体积/敏感性评估见 [`KNOWLEDGE_ARTIFACTS.md`](KNOWLEDGE_ARTIFACTS.md)。
 
-| 产物 | 内容 | 规模 |
+| 产物 | 规模 | 处理 |
 | --- | --- | --- |
-| `data/chroma/` | 向量库（collection `knowledge_chunks`） | 75 条 / 10 份文档 / 3.8 MB |
-| `data/exports/text/*.txt` | 每份文档的抽取文本 | 10 个文件，共 67,792 字符 |
-| `data/exports/chunks.jsonl` | 一行一个 chunk，含全文与全部 metadata | 75 行 |
-| `data/exports/chunks-overview.md` | 可读索引（每块长度与首行预览） | 5.9 KB |
+| 源 PDF（10 份） | 2.99 MB | **入库**（唯一权威源） |
+| `data/chroma/`（Chroma 二进制） | ≈3.8 MB | 不入库；`python -m backend.knowledge.build_index` 重建 |
+| `data/exports/`（文本 + 切片） | ≈380 KB | 不入库；`python -m backend.knowledge.export_chunks` 重建 |
+| `tools/rag_verification/reference/`（验证报告） | ≈180 KB | **入库**：结论证据，且已改为占位符路径 |
 
-交叉校验（`build_index` 与 `export_chunks` 产出一致性）：库中块数 = jsonl 行数 = **75**，
-每份文档都有对应文本文件，空块 0，最长 chunk 1195 字符（上限 1200）。
-
-> 注意：向量库是二进制且体积不小，重新生成会产生整块 diff。若要回到「不入库、克隆后自行重建」，
-> 把 `.gitignore` 里对应说明注释恢复成 `data/chroma/` 与 `data/exports/` 两行即可。
+重建后的一致性由脚本保证：两个脚本共用同一套抽取/切块代码，
+库中块数 = jsonl 行数 = 文本文件数（75 / 75 / 10）。
 
 ### 测试
 
 | 命令 | 实际结果（2026-10-17 重跑） | 退出码 |
 | --- | --- | --- |
-| `python -m unittest discover -s backend -t . -p "test_*.py"` | `Ran 143 tests in 18.110s` → **OK**（阶段三时为 128） | **0** |
+| `python -m unittest discover -s backend -t . -p "test_*.py"` | `Ran 154 tests` → **OK**（阶段四时为 143） | **0** |
 | `python tools/rag_verification/verify_inventory.py` | `documents checked: 10   text claims verified: 45` → `PASS` | **0** |
 | `python tools/rag_verification/verify_rag.py` | E1 75 chunks、E2 幂等 `PASS`（重复 ID 0）、E10 8/9 chunk 分数上升 | **0** |
 | `python tools/rag_verification/check_retrieval.py` | 24 题；18 道有期望文档的题全部进 top_3；负样本第一名 0.5349–0.6590 | **0** |
@@ -336,9 +335,9 @@ python tools/rag_verification/verify_rag.py         # E1–E10
 1. **O1 的选型**（前端传参 / 规则抽取年份 / 其他）**与命中为空时的降级策略**——
    这两项确定后，我再另开分支实现。
 2. **P1 的归一化位置**是否认可（`pdf_loader` 修存储文本 + `embedding` 双侧归一化）。
-3. **是否接受把二进制向量库 `data/chroma/` 纳入版本控制**：好处是克隆后可直接运行，
-   代价是每次重建都会产生整块 diff。若不接受，把 `.gitignore` 里那段说明注释恢复成
-   `data/chroma/` 与 `data/exports/` 两行即可，代价是新人必须先跑一次 `build_index`。
+3. **产物策略**：本分支已把 `data/chroma/` 与 `data/exports/` 移出版本库
+   （理由见 `KNOWLEDGE_ARTIFACTS.md`），代价是克隆后必须先跑一次 `build_index`。
+   如果团队更希望"开箱即用"，可以再讨论，但需接受二进制整块 diff 与仓库体积增长。
 4. **问题集的两处改判是否认可**：`q18`/`q20` 由「语料缺口」改为可答并补逐字条款，
    另补两条真负样本。其中 `q20` 属于「部分可答」（规定里没有补考时间安排），
    这类答案目前只能人工判定。

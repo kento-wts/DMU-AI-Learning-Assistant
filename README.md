@@ -36,8 +36,8 @@ backend/
 frontend/                   React 聊天界面
 tools/rag_verification/     只读验证脚本与实验存档
 data/
-  chroma/                   向量库（已提交，克隆后可直接运行）
-  exports/                  抽取文本与切片文件（已提交）
+  chroma/                   向量库（生成物，不入库；由 build_index 生成）
+  exports/                  抽取文本与切片文件（生成物，不入库；由 export_chunks 生成）
 ```
 
 ## 环境要求
@@ -55,7 +55,7 @@ python -m pip install -r backend/requirements.txt
 # 2. 在仓库根目录放 .env，内容为：
 #    DEEPSEEK_API_KEY=<你的 key>
 
-# 3. 构建向量库（仓库里已带 data/chroma，仅在需要重建时执行）
+# 3. 构建向量库（克隆后必须执行一次；data/chroma 不入库）
 python -m backend.knowledge.build_index
 
 # 4. 启动后端（端口必须是 8000，前端把地址写死在这里）
@@ -95,20 +95,23 @@ npm run dev
 
 两者共用同一套 `load_pdf_text` / `chunk_text`，所以切片数量必然一致。
 
-### 已提交的产物
+### 产物策略：源文件入库，生成物不入库
 
-为了让克隆后无需重建即可运行，以下产物纳入版本控制：
+**权威源文件**只有一样：`backend/knowledge/documents/` 下的 10 份 PDF（已入库）。
+其余都是可以随时重建的生成物，放在 `data/` 下并**被 `.gitignore` 排除**：
 
-| 产物 | 内容 |
-| --- | --- |
-| `data/chroma/` | 向量库：75 条记录 / 10 份文档 |
-| `data/exports/text/` | 每份文档的抽取文本 |
-| `data/exports/chunks.jsonl` | 一行一个 chunk，含全文与全部元数据 |
-| `data/exports/chunks-overview.md` | 可读索引（每块长度与首行） |
+| 产物 | 大小 | 为什么不入库 | 重建命令 |
+| --- | --- | --- | --- |
+| `data/chroma/`（向量库二进制） | ≈3.8 MB | 二进制、每次重建整块变化、换模型即失效 | `python -m backend.knowledge.build_index` |
+| `data/exports/text/` | ≈180 KB | 由 PDF 抽取得到，与源文件重复 | `python -m backend.knowledge.export_chunks` |
+| `data/exports/chunks.jsonl`、`chunks-overview.md` | ≈200 KB | 同上，切片随参数变化 | 同上 |
 
-重建代价：`build_index` 约 10 秒，`export_chunks` 约 4 秒。向量库是二进制文件，
-重新生成会产生整体 diff；若不希望它进版本库，把 `.gitignore` 里对应的说明注释改回
-`data/chroma/` 与 `data/exports/` 两行即可。
+重建代价：`build_index` 约 10 秒（含模型加载），`export_chunks` 约 4 秒。
+**克隆后必须先执行 `build_index`**，否则检索返回空、回答会变成"知识库没有检索到相关资料"。
+
+为什么报告反而入库：`tools/rag_verification/reference/` 下的验证报告（每个 ≤ 60 KB）
+是"这批结论在当时成立"的证据，无法由源文件单独推出，因此随仓库分发；
+它们只包含占位符路径（`<repo root>`、`<temp>/chroma`），不含个人机器路径。
 
 ## 元数据
 
