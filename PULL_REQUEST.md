@@ -35,7 +35,7 @@
 | --- | --- | --- |
 | 知识库修复 | `embedding.py`、`pdf_loader.py`、`prompt_builder.py`、`ingest.py` | P1（NFKC 双侧归一化）、P2（`max_chars` 透传）、P3（prompt 携带来源与年份） |
 | 新增入库脚本 | `build_index.py`、`export_chunks.py` | 批量入库 / 导出文本与切片 |
-| 测试 | 修改 5 个、新增 4 个（含 `test_build_index.py`、`test_evaluation_dataset.py`、`test_knowledge_documents.py`、`test_query_filters.py`） | 87 → 143 个用例 |
+| 测试 | 修改 6 个、新增 4 个（含 `test_build_index.py`、`test_evaluation_dataset.py`、`test_knowledge_documents.py`、`test_query_filters.py`） | 87 → 154 个用例 |
 | 问题集 | `evaluation_dataset.json` | 1 → **24 条**，带标准答案与期望行为（阶段三修正了 q18/q20 两处错误标注） |
 | 数据产物 | —（不入库） | 向量库（75 条）与导出文件改为生成物，由脚本重建，见 `KNOWLEDGE_ARTIFACTS.md` |
 | 验证工具 | `tools/rag_verification/`（10 个文件） | 只读验证脚本与实验存档 |
@@ -291,7 +291,7 @@ python tools/rag_verification/verify_rag.py         # E1–E10
 | 有哪些创新创业竞赛（无年份） | 无 | 与改动前一致（2025 列表 #1、2023 办法、2024 奖励） |
 | 2019 年有哪些创新创业竞赛 | `{"year": 2019}` | **0 条** → SSE「知识库中没有检索到 2019 年的相关资料……没有改用其他年份的资料作答」，且**不调用模型** |
 
-测试：`Ran 143 tests in 18.110s` → **OK**，退出码 **0**（128 → 143，新增 15 个）。
+测试（阶段四时）：`Ran 143 tests in 18.110s` → **OK**，退出码 **0**（128 → 143，新增 15 个）。
 
 ### 兼容性
 

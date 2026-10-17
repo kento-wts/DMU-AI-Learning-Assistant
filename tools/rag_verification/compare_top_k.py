@@ -122,7 +122,11 @@ def main(argv: list[str] | None = None) -> int:
     emit("=" * 100)
     emit("Retrieval comparison across top_k (real model, throwaway Chroma corpus)")
     emit("=" * 100)
-    emit(f"dataset:  {harness.DATASET_PATH}")
+    try:
+        dataset_label = harness.DATASET_PATH.relative_to(harness.REPO_ROOT)
+    except ValueError:
+        dataset_label = Path("<custom>")
+    emit(f"dataset:  {dataset_label}")
     emit(f"questions: {len(dataset)}   top_k values: {', '.join(str(k) for k in top_ks)}")
     emit("")
     emit("A hit only means the text was retrieved. This is not an accuracy metric.")

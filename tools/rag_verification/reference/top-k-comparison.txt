@@ -1,7 +1,7 @@
 ====================================================================================================
 Retrieval comparison across top_k (real model, throwaway Chroma corpus)
 ====================================================================================================
-dataset:  C:\Users\zwk\Documents\Codex\DMU-AI-Learning-Assistant\backend\knowledge\evaluation_dataset.json
+dataset:  backend\knowledge\evaluation_dataset.json
 questions: 24   top_k values: 3, 5, 8
 
 A hit only means the text was retrieved. This is not an accuracy metric.
