@@ -1,0 +1,11 @@
+# The verification outputs are UTF-8 Chinese text. Git's binary heuristic
+# misreads them, which would store them as opaque blobs and make the committed
+# evidence undiffable in review. Mark the text-like paths explicitly.
+# No working-tree-encoding is set: these files are already UTF-8 on disk, and
+# re-encoding would add a BOM that the verification scripts would then read.
+*.txt text
+*.json text
+*.md text
+*.py text
+*.ts text
+*.tsx text

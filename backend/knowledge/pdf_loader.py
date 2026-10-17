@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import unicodedata
 from pathlib import Path
 
 from pypdf import PdfReader
@@ -17,7 +18,9 @@ def load_pdf_text(pdf_path: str) -> str:
 
     Pages are processed in document order. Extracted page text is stripped,
     non-empty pages are separated by a blank line, and blank pages are kept
-    out of the result.
+    out of the result. The result is NFKC-normalized so that compatibility
+    characters which some PDF generators emit (for example the Kangxi radical
+    ``U+2F24`` in place of ``U+5927``) are stored as their canonical form.
 
     Args:
         pdf_path: Path to the source PDF file.
@@ -50,7 +53,7 @@ def load_pdf_text(pdf_path: str) -> str:
                     f"Unable to extract text from PDF page {page_number}: {pdf_path}"
                 ) from exc
 
-            normalized_text = page_text.replace("\r\n", "\n").replace("\r", "\n").strip()
+            normalized_text = _normalize_page_text(page_text)
             if normalized_text:
                 page_texts.append(normalized_text)
 
@@ -60,6 +63,12 @@ def load_pdf_text(pdf_path: str) -> str:
         raise PdfLoadError(f"Unable to read PDF: {pdf_path}") from exc
 
     return "\n\n".join(page_texts)
+
+
+def _normalize_page_text(page_text: str) -> str:
+    """Return one page's text with line endings and compatibility forms fixed."""
+    without_carriage_returns = page_text.replace("\r\n", "\n").replace("\r", "\n")
+    return unicodedata.normalize("NFKC", without_carriage_returns).strip()
 
 
 __all__ = ["PdfLoadError", "load_pdf_text"]

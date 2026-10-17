@@ -1,0 +1,616 @@
+================================================================================================
+Retrieval check record - curated question set
+================================================================================================
+repository root:  C:\Users\zwk\Documents\Codex\DMU-AI-Learning-Assistant
+dataset:          C:\Users\zwk\Documents\Codex\DMU-AI-Learning-Assistant\backend\knowledge\evaluation_dataset.json
+questions:        24
+top_k:            5
+
+A quote appearing below only means the text was retrieved. It is not a
+relevance verdict and not recall; a human still has to read the chunk.
+
+throwaway Chroma dir (the repo index is never opened): C:\Users\zwk\AppData\Local\Temp\tmpvzw4x1tn\chroma
+corpus chunks: 75   len(store): 75
+
+------------------------------------------------------------------------------------------------
+q1  [legacy]  top_k=5
+Q: 我是大连海事大学软件工程专业（隶属信息科学技术学院）的一名大二学生，我想参加学院承办的相关创新创业的A类竞赛，你能给我推荐一些吗？
+expected document_id(s): (none - this question should not be answered from the corpus)
+chunks returned: 5
+
+  #1  score=0.7765  dlmu-competition-list-2025
+       source: 附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf
+  #2  score=0.7313  dlmu-innovation-competition-rules-2023
+       source: 大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf
+  #3  score=0.7141  dlmu-innovation-award-2024
+       source: 大连海事大学大学生科技创新奖励办法（正文）.pdf
+  #4  score=0.7083  dlmu-xinxikexue-2025-2-assessment
+       source: 2025-2中队本科生综合素质测评实施细则.pdf
+  #5  score=0.7073  dlmu-competition-list-2026
+       source: 附件1.《大连海事大学本科生创新创业竞赛列表(2026年)》.pdf
+
+  human check: does any returned chunk above answer the question, and
+               does the answer respect the document's scope and year?
+               ( ) yes   ( ) partly   ( ) no        reviewer: __________
+
+------------------------------------------------------------------------------------------------
+q2  [answerable]  top_k=5
+Q: 大连海事大学推荐优秀应届本科毕业生免试攻读硕士研究生办法的文号和施行日期是什么？
+expected document_id(s): dlmu-postgraduate-recommendation-2025
+chunks returned: 5
+
+  #1  score=0.7997  dlmu-postgraduate-recommendation-2025 [expected doc]
+       source: 大连海事大学党政办公室关于印发《大连海事大学推荐优秀应届本科毕业生免试攻读硕士研究生办法》的通知.pdf
+  #2  score=0.7368  dlmu-postgraduate-recommendation-2025 [expected doc]
+       source: 大连海事大学党政办公室关于印发《大连海事大学推荐优秀应届本科毕业生免试攻读硕士研究生办法》的通知.pdf
+  #3  score=0.6854  dlmu-innovation-award-2024
+       source: 大连海事大学大学生科技创新奖励办法（正文）.pdf
+  #4  score=0.6848  dlmu-status-rules-2021
+       source: 大连海事大学党政办公室关于印发《大连海事大学非航海类专业本科生学籍管理规定》的通知.pdf
+  #5  score=0.6788  dlmu-scholarship-2023
+       source: 大连海事大学本科生奖学金评定办法.pdf
+
+  curated ground-truth points found in the returned text (review aid):
+    - [not present in the returned chunks] 文号：连海大办字〔2025〕1号
+    - [not present in the returned chunks] 印发日期：2025年1月16日
+    - [not present in the returned chunks] 第十五条 本办法自2025年1月10日起施行
+    - [not present in the returned chunks] 同时废止 连海大办字〔2021〕16号
+
+  human check: does any returned chunk above answer the question, and
+               does the answer respect the document's scope and year?
+               ( ) yes   ( ) partly   ( ) no        reviewer: __________
+
+------------------------------------------------------------------------------------------------
+q3  [answerable]  top_k=5
+Q: 学校现行的《大连海事大学大学生创新创业竞赛管理办法》是哪个文号？什么时候印发的？
+expected document_id(s): dlmu-innovation-competition-rules-2023
+chunks returned: 5
+
+  #1  score=0.8076  dlmu-innovation-competition-rules-2023 [expected doc]
+       source: 大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf
+  #2  score=0.8076  dlmu-innovation-award-2024
+       source: 大连海事大学大学生科技创新奖励办法（正文）.pdf
+  #3  score=0.7216  dlmu-innovation-award-2024
+       source: 大连海事大学大学生科技创新奖励办法（正文）.pdf
+  #4  score=0.7198  dlmu-competition-list-2025
+       source: 附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf
+  #5  score=0.6783  dlmu-competition-list-2026
+       source: 附件1.《大连海事大学本科生创新创业竞赛列表(2026年)》.pdf
+
+  curated ground-truth points found in the returned text (review aid):
+    - [not present in the returned chunks] 文号：连海大办字〔2023〕7 号
+    - [not present in the returned chunks] 印发日期：2023 年 7 月 6 日
+
+  human check: does any returned chunk above answer the question, and
+               does the answer respect the document's scope and year?
+               ( ) yes   ( ) partly   ( ) no        reviewer: __________
+
+------------------------------------------------------------------------------------------------
+q4  [answerable]  top_k=5
+Q: 大连海事大学大学生科技创新奖励办法从什么时候开始执行？它取代了此前的哪份文件？
+expected document_id(s): dlmu-innovation-award-2024
+chunks returned: 5
+
+  #1  score=0.8040  dlmu-innovation-award-2024 [expected doc]
+       source: 大连海事大学大学生科技创新奖励办法（正文）.pdf
+  #2  score=0.7408  dlmu-innovation-award-2024 [expected doc]
+       source: 大连海事大学大学生科技创新奖励办法（正文）.pdf
+  #3  score=0.6854  dlmu-innovation-competition-rules-2023
+       source: 大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf
+  #4  score=0.6704  dlmu-innovation-competition-rules-2023
+       source: 大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf
+  #5  score=0.6630  dlmu-scholarship-2023
+       source: 大连海事大学本科生奖学金评定办法.pdf
+
+  curated ground-truth points found in the returned text (review aid):
+    - [chunk #2] 第十四条 本办法自 2024 年4 月 24 日起执行
+    - [not present in the returned chunks] 废止 连海大办字〔2019〕20号
+
+  human check: does any returned chunk above answer the question, and
+               does the answer respect the document's scope and year?
+               ( ) yes   ( ) partly   ( ) no        reviewer: __________
+
+------------------------------------------------------------------------------------------------
+q5  [answerable]  top_k=5
+Q: 大连海事大学学生违纪处分办法的文号和施行日期是什么？它取代了哪份文件？
+expected document_id(s): dlmu-discipline-2022
+chunks returned: 5
+
+  #1  score=0.7519  dlmu-discipline-2022 [expected doc]
+       source: 大连海事大学学生违纪处分办法.pdf
+  #2  score=0.6845  dlmu-discipline-2022 [expected doc]
+       source: 大连海事大学学生违纪处分办法.pdf
+  #3  score=0.6359  dlmu-innovation-award-2024
+       source: 大连海事大学大学生科技创新奖励办法（正文）.pdf
+  #4  score=0.6356  dlmu-innovation-award-2024
+       source: 大连海事大学大学生科技创新奖励办法（正文）.pdf
+  #5  score=0.6323  dlmu-status-rules-2021
+       source: 大连海事大学党政办公室关于印发《大连海事大学非航海类专业本科生学籍管理规定》的通知.pdf
+
+  curated ground-truth points found in the returned text (review aid):
+    - [not present in the returned chunks] 文号：连海大校发〔2022〕194 号
+    - [chunk #2] 第六十二条 本办法自 2022 年 9 月 11 日起施行
+    - [not present in the returned chunks] 废止 连海大校发〔2017〕329 号
+
+  human check: does any returned chunk above answer the question, and
+               does the answer respect the document's scope and year?
+               ( ) yes   ( ) partly   ( ) no        reviewer: __________
+
+------------------------------------------------------------------------------------------------
+q6  [answerable]  top_k=5
+Q: 大连海事大学非航海类专业本科生学籍管理规定适用于哪些学生？什么时候开始施行？
+expected document_id(s): dlmu-status-rules-2021
+chunks returned: 5
+
+  #1  score=0.7936  dlmu-status-rules-2021 [expected doc]
+       source: 大连海事大学党政办公室关于印发《大连海事大学非航海类专业本科生学籍管理规定》的通知.pdf
+  #2  score=0.6894  dlmu-discipline-2022
+       source: 大连海事大学学生违纪处分办法.pdf
+  #3  score=0.6624  dlmu-discipline-2022
+       source: 大连海事大学学生违纪处分办法.pdf
+  #4  score=0.6520  dlmu-scholarship-2023
+       source: 大连海事大学本科生奖学金评定办法.pdf
+  #5  score=0.6518  dlmu-scholarship-2023
+       source: 大连海事大学本科生奖学金评定办法.pdf
+
+  curated ground-truth points found in the returned text (review aid):
+    - [not present in the returned chunks] 适用于我校非航海类专业普通全日制本科生
+    - [not present in the returned chunks] 印发日期：2021 年11 月5 日
+    - [not present in the returned chunks] 第五十一条 本规定自 2021 年 11 月 10 日起施行
+
+  human check: does any returned chunk above answer the question, and
+               does the answer respect the document's scope and year?
+               ( ) yes   ( ) partly   ( ) no        reviewer: __________
+
+------------------------------------------------------------------------------------------------
+q7  [answerable]  top_k=5
+Q: 大连海事大学本科生奖学金评定办法的文号是什么？什么时候施行的？
+expected document_id(s): dlmu-scholarship-2023
+chunks returned: 5
+
+  #1  score=0.7839  dlmu-scholarship-2023 [expected doc]
+       source: 大连海事大学本科生奖学金评定办法.pdf
+  #2  score=0.7741  dlmu-scholarship-2023 [expected doc]
+       source: 大连海事大学本科生奖学金评定办法.pdf
+  #3  score=0.7357  dlmu-innovation-award-2024
+       source: 大连海事大学大学生科技创新奖励办法（正文）.pdf
+  #4  score=0.7310  dlmu-scholarship-2023 [expected doc]
+       source: 大连海事大学本科生奖学金评定办法.pdf
+  #5  score=0.7252  dlmu-innovation-competition-rules-2023
+       source: 大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf
+
+  curated ground-truth points found in the returned text (review aid):
+    - [not present in the returned chunks] 文号：连海大办字〔2023〕13 号
+    - [not present in the returned chunks] 施行日期：2023 年 7 月 12 日
+
+  human check: does any returned chunk above answer the question, and
+               does the answer respect the document's scope and year?
+               ( ) yes   ( ) partly   ( ) no        reviewer: __________
+
+------------------------------------------------------------------------------------------------
+q8  [answerable]  top_k=5
+Q: 《2025-2中队本科生综合素质测评实施细则》适用于哪些学生？什么时候起施行？
+expected document_id(s): dlmu-xinxikexue-2025-2-assessment
+chunks returned: 5
+
+  #1  score=0.7404  dlmu-xinxikexue-2025-2-assessment [expected doc]
+       source: 2025-2中队本科生综合素质测评实施细则.pdf
+  #2  score=0.5827  dlmu-xinxikexue-2025-2-assessment [expected doc]
+       source: 2025-2中队本科生综合素质测评实施细则.pdf
+  #3  score=0.5713  dlmu-xinxikexue-2025-2-assessment [expected doc]
+       source: 2025-2中队本科生综合素质测评实施细则.pdf
+  #4  score=0.5532  dlmu-xinxikexue-2025-2-assessment [expected doc]
+       source: 2025-2中队本科生综合素质测评实施细则.pdf
+  #5  score=0.5531  dlmu-postgraduate-recommendation-2025
+       source: 大连海事大学党政办公室关于印发《大连海事大学推荐优秀应届本科毕业生免试攻读硕士研究生办法》的通知.pdf
+
+  curated ground-truth points found in the returned text (review aid):
+    - [not present in the returned chunks] 仅适用于信息科学技术学院2025-2中队在籍全日制本科学生（即 2025 级 2 中队）
+    - [not present in the returned chunks] 第二十四条 本办法自2025年10月1日起施行
+
+  human check: does any returned chunk above answer the question, and
+               does the answer respect the document's scope and year?
+               ( ) yes   ( ) partly   ( ) no        reviewer: __________
+
+------------------------------------------------------------------------------------------------
+q9  [answerable]  top_k=5
+Q: 大连海事大学的创新创业竞赛分为几类？依据哪一条划分？每一类是怎么定义的？
+expected document_id(s): dlmu-innovation-competition-rules-2023
+chunks returned: 5
+
+  #1  score=0.7818  dlmu-innovation-competition-rules-2023 [expected doc]
+       source: 大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf
+  #2  score=0.7283  dlmu-innovation-award-2024
+       source: 大连海事大学大学生科技创新奖励办法（正文）.pdf
+  #3  score=0.7229  dlmu-competition-list-2025
+       source: 附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf
+  #4  score=0.6907  dlmu-innovation-award-2024
+       source: 大连海事大学大学生科技创新奖励办法（正文）.pdf
+  #5  score=0.6865  dlmu-xinxikexue-2025-2-assessment
+       source: 2025-2中队本科生综合素质测评实施细则.pdf
+
+  curated ground-truth points found in the returned text (review aid):
+    - [chunk #1] 第四条 本办法适用的创新创业竞赛分为三类
+    - [not present in the returned chunks] A 类：由联合国专门机构或国际学术组织，教育部、科技部、团中央等政府部门和教育部高等学校教学指导委员会主办的具有重大影响的综合性国家（国际）级及其省部（地区）级竞赛
+    - [not present in the returned chunks] B 类：上述主体以及重要的国家级学术组织、行业学会（协会）主办的具有较大影响的国家（国际）级及其省部（地区）级竞赛
+    - [not present in the returned chunks] C 类：由国际、国家级学术组织或行业学会（协会）主办的具有一定影响的国家（国际）级及其省部（地区）级竞赛
+    - [not present in the returned chunks] 具体赛事及类别见附件 1，附件 1 根据竞赛变化情况定期修订
+
+  human check: does any returned chunk above answer the question, and
+               does the answer respect the document's scope and year?
+               ( ) yes   ( ) partly   ( ) no        reviewer: __________
+
+------------------------------------------------------------------------------------------------
+q10  [answerable]  top_k=5
+Q: 综合素质测评的结果会被用在哪些方面？
+expected document_id(s): dlmu-xinxikexue-2025-2-assessment
+chunks returned: 5
+
+  #1  score=0.6846  dlmu-xinxikexue-2025-2-assessment [expected doc]
+       source: 2025-2中队本科生综合素质测评实施细则.pdf
+  #2  score=0.6530  dlmu-xinxikexue-2025-2-assessment [expected doc]
+       source: 2025-2中队本科生综合素质测评实施细则.pdf
+  #3  score=0.6299  dlmu-xinxikexue-2025-2-assessment [expected doc]
+       source: 2025-2中队本科生综合素质测评实施细则.pdf
+  #4  score=0.6131  dlmu-xinxikexue-2025-2-assessment [expected doc]
+       source: 2025-2中队本科生综合素质测评实施细则.pdf
+  #5  score=0.5931  dlmu-xinxikexue-2025-2-assessment [expected doc]
+       source: 2025-2中队本科生综合素质测评实施细则.pdf
+
+  curated ground-truth points found in the returned text (review aid):
+    - [not present in the returned chunks] 第三条：综合素质测评结果作为奖助学金评定、推优入党、荣誉称号评定、推免研究生及推荐毕业生就业等的主要依据
+
+  human check: does any returned chunk above answer the question, and
+               does the answer respect the document's scope and year?
+               ( ) yes   ( ) partly   ( ) no        reviewer: __________
+
+------------------------------------------------------------------------------------------------
+q11  [answerable]  top_k=5
+Q: 国家奖学金由谁出资设立？用于奖励哪一类学生？奖励标准和名额怎么确定？
+expected document_id(s): dlmu-scholarship-2023
+chunks returned: 5
+
+  #1  score=0.7204  dlmu-scholarship-2023 [expected doc]
+       source: 大连海事大学本科生奖学金评定办法.pdf
+  #2  score=0.6832  dlmu-scholarship-2023 [expected doc]
+       source: 大连海事大学本科生奖学金评定办法.pdf
+  #3  score=0.6726  dlmu-scholarship-2023 [expected doc]
+       source: 大连海事大学本科生奖学金评定办法.pdf
+  #4  score=0.6480  dlmu-scholarship-2023 [expected doc]
+       source: 大连海事大学本科生奖学金评定办法.pdf
+  #5  score=0.6448  dlmu-scholarship-2023 [expected doc]
+       source: 大连海事大学本科生奖学金评定办法.pdf
+
+  curated ground-truth points found in the returned text (review aid):
+    - [not present in the returned chunks] 第五条 国家奖学金由中央政府出资设立，用于奖励二年级及以上的本科学生中特别优秀的学生
+    - [not present in the returned chunks] 奖励标准和名额按照教育部文件执行
+
+  human check: does any returned chunk above answer the question, and
+               does the answer respect the document's scope and year?
+               ( ) yes   ( ) partly   ( ) no        reviewer: __________
+
+------------------------------------------------------------------------------------------------
+q12  [answerable]  top_k=5
+Q: 专业奖学金是面向哪类学生的？一等奖的金额和比例是多少？
+expected document_id(s): dlmu-scholarship-2023
+chunks returned: 5
+
+  #1  score=0.7017  dlmu-scholarship-2023 [expected doc]
+       source: 大连海事大学本科生奖学金评定办法.pdf
+  #2  score=0.6682  dlmu-scholarship-2023 [expected doc]
+       source: 大连海事大学本科生奖学金评定办法.pdf
+  #3  score=0.6297  dlmu-scholarship-2023 [expected doc]
+       source: 大连海事大学本科生奖学金评定办法.pdf
+  #4  score=0.6278  dlmu-innovation-award-2024
+       source: 大连海事大学大学生科技创新奖励办法（正文）.pdf
+  #5  score=0.6251  dlmu-scholarship-2023 [expected doc]
+       source: 大连海事大学本科生奖学金评定办法.pdf
+
+  curated ground-truth points found in the returned text (review aid):
+    - [not present in the returned chunks] 第六条 专业奖学金由学校出资设立，用于奖励航海类专业二年级及以上的本科学生中综合素质优秀的学生
+    - [chunk #3] 一等奖：2000 元/人·年，占参评学生总数的 2%
+
+  human check: does any returned chunk above answer the question, and
+               does the answer respect the document's scope and year?
+               ( ) yes   ( ) partly   ( ) no        reviewer: __________
+
+------------------------------------------------------------------------------------------------
+q13  [answerable]  top_k=5
+Q: 推免办法适用于哪些年级的本科学生？
+expected document_id(s): dlmu-postgraduate-recommendation-2025
+chunks returned: 5
+
+  #1  score=0.7002  dlmu-postgraduate-recommendation-2025 [expected doc]
+       source: 大连海事大学党政办公室关于印发《大连海事大学推荐优秀应届本科毕业生免试攻读硕士研究生办法》的通知.pdf
+  #2  score=0.6932  dlmu-postgraduate-recommendation-2025 [expected doc]
+       source: 大连海事大学党政办公室关于印发《大连海事大学推荐优秀应届本科毕业生免试攻读硕士研究生办法》的通知.pdf
+  #3  score=0.6364  dlmu-postgraduate-recommendation-2025 [expected doc]
+       source: 大连海事大学党政办公室关于印发《大连海事大学推荐优秀应届本科毕业生免试攻读硕士研究生办法》的通知.pdf
+  #4  score=0.6058  dlmu-postgraduate-recommendation-2025 [expected doc]
+       source: 大连海事大学党政办公室关于印发《大连海事大学推荐优秀应届本科毕业生免试攻读硕士研究生办法》的通知.pdf
+  #5  score=0.5422  dlmu-postgraduate-recommendation-2025 [expected doc]
+       source: 大连海事大学党政办公室关于印发《大连海事大学推荐优秀应届本科毕业生免试攻读硕士研究生办法》的通知.pdf
+
+  curated ground-truth points found in the returned text (review aid):
+    - [not present in the returned chunks] 适用于2022级及以后年级本科学生
+
+  human check: does any returned chunk above answer the question, and
+               does the answer respect the document's scope and year?
+               ( ) yes   ( ) partly   ( ) no        reviewer: __________
+
+------------------------------------------------------------------------------------------------
+q14  [answerable]  top_k=5
+Q: 学生违纪处分办法的适用范围包括哪些学生？
+expected document_id(s): dlmu-discipline-2022
+chunks returned: 5
+
+  #1  score=0.7246  dlmu-discipline-2022 [expected doc]
+       source: 大连海事大学学生违纪处分办法.pdf
+  #2  score=0.6954  dlmu-discipline-2022 [expected doc]
+       source: 大连海事大学学生违纪处分办法.pdf
+  #3  score=0.6793  dlmu-discipline-2022 [expected doc]
+       source: 大连海事大学学生违纪处分办法.pdf
+  #4  score=0.6518  dlmu-discipline-2022 [expected doc]
+       source: 大连海事大学学生违纪处分办法.pdf
+  #5  score=0.6315  dlmu-discipline-2022 [expected doc]
+       source: 大连海事大学学生违纪处分办法.pdf
+
+  curated ground-truth points found in the returned text (review aid):
+    - [not present in the returned chunks] 我校接受普通高等学历教育的研究生、本科生
+    - [not present in the returned chunks] 继续教育学生、港澳台侨学生、留学生、结业生参照执行
+
+  human check: does any returned chunk above answer the question, and
+               does the answer respect the document's scope and year?
+               ( ) yes   ( ) partly   ( ) no        reviewer: __________
+
+------------------------------------------------------------------------------------------------
+q15  [answerable]  top_k=5
+Q: 2026 年度学校认定的本科生创新创业竞赛列表里包含「中国大学生计算机设计大赛」吗？
+expected document_id(s): dlmu-competition-list-2026
+chunks returned: 5
+
+  #1  score=0.6896  dlmu-competition-list-2025
+       source: 附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf
+  #2  score=0.6845  dlmu-competition-list-2026 [expected doc]
+       source: 附件1.《大连海事大学本科生创新创业竞赛列表(2026年)》.pdf
+  #3  score=0.6810  dlmu-competition-list-2025
+       source: 附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf
+  #4  score=0.6740  dlmu-competition-list-2026 [expected doc]
+       source: 附件1.《大连海事大学本科生创新创业竞赛列表(2026年)》.pdf
+  #5  score=0.6635  dlmu-competition-list-2026 [expected doc]
+       source: 附件1.《大连海事大学本科生创新创业竞赛列表(2026年)》.pdf
+
+  curated ground-truth points found in the returned text (review aid):
+    - [not present in the returned chunks] 包含：NFKC 归一化后的 2026 列表抽取文本中出现该名称
+
+  human check: does any returned chunk above answer the question, and
+               does the answer respect the document's scope and year?
+               ( ) yes   ( ) partly   ( ) no        reviewer: __________
+
+------------------------------------------------------------------------------------------------
+q16  [answerable]  top_k=5
+Q: 学校 2026 年认定的竞赛名单和 2025 年的名单是同一份材料吗？想查 2026 年认定的竞赛应该看哪一份？
+expected document_id(s): dlmu-competition-list-2026
+chunks returned: 5
+
+  #1  score=0.6679  dlmu-competition-list-2026 [expected doc]
+       source: 附件1.《大连海事大学本科生创新创业竞赛列表(2026年)》.pdf
+  #2  score=0.5889  dlmu-competition-list-2025
+       source: 附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf
+  #3  score=0.5851  dlmu-competition-list-2026 [expected doc]
+       source: 附件1.《大连海事大学本科生创新创业竞赛列表(2026年)》.pdf
+  #4  score=0.5844  dlmu-innovation-competition-rules-2023
+       source: 大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf
+  #5  score=0.5791  dlmu-competition-list-2026 [expected doc]
+       source: 附件1.《大连海事大学本科生创新创业竞赛列表(2026年)》.pdf
+
+  curated ground-truth points found in the returned text (review aid):
+    - [not present in the returned chunks] 不是同一份：知识库中存在 2025 年与 2026 年两份独立的竞赛列表
+    - [not present in the returned chunks] 2026 年的问题应参考 2026 年列表（2025 列表对 2026 年问题属历史资料）
+
+  human check: does any returned chunk above answer the question, and
+               does the answer respect the document's scope and year?
+               ( ) yes   ( ) partly   ( ) no        reviewer: __________
+
+------------------------------------------------------------------------------------------------
+q17  [not_reliably_answerable_from_text]  top_k=5
+Q: 2026 年信息科学技术学院承办的 A 类创新创业竞赛有哪些？
+expected document_id(s): dlmu-competition-list-2026
+chunks returned: 5
+
+  #1  score=0.7152  dlmu-competition-list-2025
+       source: 附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf
+  #2  score=0.7062  dlmu-competition-list-2026 [expected doc]
+       source: 附件1.《大连海事大学本科生创新创业竞赛列表(2026年)》.pdf
+  #3  score=0.6794  dlmu-competition-list-2025
+       source: 附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf
+  #4  score=0.6633  dlmu-competition-list-2025
+       source: 附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf
+  #5  score=0.6627  dlmu-competition-list-2026 [expected doc]
+       source: 附件1.《大连海事大学本科生创新创业竞赛列表(2026年)》.pdf
+
+  human check: does any returned chunk above answer the question, and
+               does the answer respect the document's scope and year?
+               ( ) yes   ( ) partly   ( ) no        reviewer: __________
+
+------------------------------------------------------------------------------------------------
+q18  [answerable]  top_k=5
+Q: 大连海事大学转专业的申请条件是什么？
+expected document_id(s): dlmu-status-rules-2021
+chunks returned: 5
+
+  #1  score=0.7379  dlmu-status-rules-2021 [expected doc]
+       source: 大连海事大学党政办公室关于印发《大连海事大学非航海类专业本科生学籍管理规定》的通知.pdf
+  #2  score=0.7366  dlmu-status-rules-2021 [expected doc]
+       source: 大连海事大学党政办公室关于印发《大连海事大学非航海类专业本科生学籍管理规定》的通知.pdf
+  #3  score=0.6874  dlmu-scholarship-2023
+       source: 大连海事大学本科生奖学金评定办法.pdf
+  #4  score=0.6862  dlmu-innovation-competition-rules-2023
+       source: 大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf
+  #5  score=0.6851  dlmu-postgraduate-recommendation-2025
+       source: 大连海事大学党政办公室关于印发《大连海事大学推荐优秀应届本科毕业生免试攻读硕士研究生办法》的通知.pdf
+
+  curated ground-truth points found in the returned text (review aid):
+    - [not present in the returned chunks] 第二十六条转专业(大类)条件
+    - [not present in the returned chunks] 品德优良、学业优秀学生;无未解除的纪律处分,同时培养计划规定的第一学年前2学期(不含小学期)必修和限选课第一次考试成绩平均学分绩点不低于3.0且排名位于本专业(大类)前20%
+    - [not present in the returned chunks] 专业(大类)累计接受人数一般不得超过该专业(大类)年级原人数的10%
+    - [not present in the returned chunks] 不允许转专业(大类)1.入学未满一学期的;2.招生时确定为定向、委托培养的;3.毕业前一年的
+    - [not present in the returned chunks] 学生转专业(大类)学籍异动手续,在每学期放假前一周办理
+
+  human check: does any returned chunk above answer the question, and
+               does the answer respect the document's scope and year?
+               ( ) yes   ( ) partly   ( ) no        reviewer: __________
+
+------------------------------------------------------------------------------------------------
+q19  [not_in_corpus]  top_k=5
+Q: 大学生创新创业训练计划（大创）项目应该怎么申报？
+expected document_id(s): (none - this question should not be answered from the corpus)
+chunks returned: 5
+
+  #1  score=0.6590  dlmu-innovation-competition-rules-2023
+       source: 大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf
+  #2  score=0.6427  dlmu-competition-list-2025
+       source: 附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf
+  #3  score=0.6348  dlmu-innovation-competition-rules-2023
+       source: 大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf
+  #4  score=0.6165  dlmu-innovation-award-2024
+       source: 大连海事大学大学生科技创新奖励办法（正文）.pdf
+  #5  score=0.6112  dlmu-competition-list-2025
+       source: 附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf
+
+  human check: does any returned chunk above answer the question, and
+               does the answer respect the document's scope and year?
+               ( ) yes   ( ) partly   ( ) no        reviewer: __________
+
+------------------------------------------------------------------------------------------------
+q20  [answerable]  top_k=5
+Q: 课程考试不及格后的补考和重修是怎么安排的？
+expected document_id(s): dlmu-status-rules-2021
+chunks returned: 5
+
+  #1  score=0.6346  dlmu-status-rules-2021 [expected doc]
+       source: 大连海事大学党政办公室关于印发《大连海事大学非航海类专业本科生学籍管理规定》的通知.pdf
+  #2  score=0.6123  dlmu-status-rules-2021 [expected doc]
+       source: 大连海事大学党政办公室关于印发《大连海事大学非航海类专业本科生学籍管理规定》的通知.pdf
+  #3  score=0.5977  dlmu-status-rules-2021 [expected doc]
+       source: 大连海事大学党政办公室关于印发《大连海事大学非航海类专业本科生学籍管理规定》的通知.pdf
+  #4  score=0.5829  dlmu-discipline-2022
+       source: 大连海事大学学生违纪处分办法.pdf
+  #5  score=0.5769  dlmu-status-rules-2021 [expected doc]
+       source: 大连海事大学党政办公室关于印发《大连海事大学非航海类专业本科生学籍管理规定》的通知.pdf
+
+  curated ground-truth points found in the returned text (review aid):
+    - [not present in the returned chunks] 通过补考、重修获得的成绩予以标注
+    - [chunk #2] 考试课程以百分制计分,满60分者为及格
+    - [not present in the returned chunks] 对于选修重修课程的学生,重修课程与新修课程(不含任选)上课时间冲突时,由本人申请,经指导教师、任课教师批准后,可以免听重修课程
+
+  human check: does any returned chunk above answer the question, and
+               does the answer respect the document's scope and year?
+               ( ) yes   ( ) partly   ( ) no        reviewer: __________
+
+------------------------------------------------------------------------------------------------
+q21  [not_in_corpus]  top_k=5
+Q: 2026 年校内竞赛的报名时间和截止日期是什么时候？
+expected document_id(s): (none - this question should not be answered from the corpus)
+chunks returned: 5
+
+  #1  score=0.6375  dlmu-competition-list-2026
+       source: 附件1.《大连海事大学本科生创新创业竞赛列表(2026年)》.pdf
+  #2  score=0.5921  dlmu-innovation-competition-rules-2023
+       source: 大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf
+  #3  score=0.5870  dlmu-innovation-competition-rules-2023
+       source: 大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf
+  #4  score=0.5714  dlmu-competition-list-2025
+       source: 附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf
+  #5  score=0.5656  dlmu-competition-list-2025
+       source: 附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf
+
+  human check: does any returned chunk above answer the question, and
+               does the answer respect the document's scope and year?
+               ( ) yes   ( ) partly   ( ) no        reviewer: __________
+
+------------------------------------------------------------------------------------------------
+q22  [scope_mismatch]  top_k=5
+Q: 我是航海类专业的学生，综合素质测评是怎么计算的？
+expected document_id(s): (none - this question should not be answered from the corpus)
+chunks returned: 5
+
+  #1  score=0.6769  dlmu-xinxikexue-2025-2-assessment
+       source: 2025-2中队本科生综合素质测评实施细则.pdf
+  #2  score=0.6480  dlmu-xinxikexue-2025-2-assessment
+       source: 2025-2中队本科生综合素质测评实施细则.pdf
+  #3  score=0.6321  dlmu-postgraduate-recommendation-2025
+       source: 大连海事大学党政办公室关于印发《大连海事大学推荐优秀应届本科毕业生免试攻读硕士研究生办法》的通知.pdf
+  #4  score=0.6317  dlmu-xinxikexue-2025-2-assessment
+       source: 2025-2中队本科生综合素质测评实施细则.pdf
+  #5  score=0.6305  dlmu-postgraduate-recommendation-2025
+       source: 大连海事大学党政办公室关于印发《大连海事大学推荐优秀应届本科毕业生免试攻读硕士研究生办法》的通知.pdf
+
+  curated ground-truth points found in the returned text (review aid):
+    - [not present in the returned chunks] 知识库内的综合素质测评实施细则仅适用于信息科学技术学院 2025 级 2 中队
+    - [not present in the returned chunks] 学籍管理规定仅适用于非航海类专业普通全日制本科生
+    - [not present in the returned chunks] 因此该问题不应被直接回答为「这就是你的测评办法」
+
+  human check: does any returned chunk above answer the question, and
+               does the answer respect the document's scope and year?
+               ( ) yes   ( ) partly   ( ) no        reviewer: __________
+
+------------------------------------------------------------------------------------------------
+q23  [not_in_corpus]  top_k=5
+Q: 学生的医疗保险怎么报销？学校里看病和住院的费用能报多少？
+expected document_id(s): (none - this question should not be answered from the corpus)
+chunks returned: 5
+
+  #1  score=0.5349  dlmu-status-rules-2021
+       source: 大连海事大学党政办公室关于印发《大连海事大学非航海类专业本科生学籍管理规定》的通知.pdf
+  #2  score=0.5256  dlmu-status-rules-2021
+       source: 大连海事大学党政办公室关于印发《大连海事大学非航海类专业本科生学籍管理规定》的通知.pdf
+  #3  score=0.5245  dlmu-status-rules-2021
+       source: 大连海事大学党政办公室关于印发《大连海事大学非航海类专业本科生学籍管理规定》的通知.pdf
+  #4  score=0.5231  dlmu-status-rules-2021
+       source: 大连海事大学党政办公室关于印发《大连海事大学非航海类专业本科生学籍管理规定》的通知.pdf
+  #5  score=0.5055  dlmu-status-rules-2021
+       source: 大连海事大学党政办公室关于印发《大连海事大学非航海类专业本科生学籍管理规定》的通知.pdf
+
+  human check: does any returned chunk above answer the question, and
+               does the answer respect the document's scope and year?
+               ( ) yes   ( ) partly   ( ) no        reviewer: __________
+
+------------------------------------------------------------------------------------------------
+q24  [not_in_corpus]  top_k=5
+Q: 学校有哪些勤工助学岗位？怎么申请？
+expected document_id(s): (none - this question should not be answered from the corpus)
+chunks returned: 5
+
+  #1  score=0.5634  dlmu-scholarship-2023
+       source: 大连海事大学本科生奖学金评定办法.pdf
+  #2  score=0.5578  dlmu-scholarship-2023
+       source: 大连海事大学本科生奖学金评定办法.pdf
+  #3  score=0.5525  dlmu-scholarship-2023
+       source: 大连海事大学本科生奖学金评定办法.pdf
+  #4  score=0.5483  dlmu-scholarship-2023
+       source: 大连海事大学本科生奖学金评定办法.pdf
+  #5  score=0.5463  dlmu-scholarship-2023
+       source: 大连海事大学本科生奖学金评定办法.pdf
+
+  human check: does any returned chunk above answer the question, and
+               does the answer respect the document's scope and year?
+               ( ) yes   ( ) partly   ( ) no        reviewer: __________
+
+================================================================================================
+Summary (indicators, not scores)
+================================================================================================
+questions with an expected document: 18
+  of those, expected document present in top_3: 18
+  (the rest are returned-chunk evidence for humans to judge, not failures)
+
+not_in_corpus questions - highest score returned:
+  q19: 0.6590
+  q21: 0.6375
+  q23: 0.5349
+  q24: 0.5634
+  A high score here means an unrelated chunk looked similar; there is
+  no minimum-score threshold in the pipeline, so nothing rejects it.
+
+No accuracy figure is computed. The curated set is small and its
+ground truth is partial by design.

@@ -43,6 +43,7 @@ def ingest_pdf_to_store(
     pdf_path: str,
     metadata: dict[str, Any],
     store: ChromaVectorStore,
+    max_chars: int = DEFAULT_MAX_CHARS,
 ) -> int:
     """Extract, chunk, embed, and replace one PDF in a vector store.
 
@@ -56,6 +57,8 @@ def ingest_pdf_to_store(
         metadata: Metadata shared by every chunk in this PDF. An optional
             ``document_id`` value overrides the normalized file path identity.
         store: Vector store into which chunks and embeddings are written.
+        max_chars: Maximum number of characters in each stored chunk. Defaults
+            to :data:`~backend.knowledge.chunker.DEFAULT_MAX_CHARS`.
 
     Returns:
         The number of chunks in the imported version.
@@ -64,6 +67,7 @@ def ingest_pdf_to_store(
         TypeError: ``metadata`` is not a dictionary.
         TypeError: ``document_id`` is present but is not a string.
         ValueError: ``document_id`` is present but is empty.
+        ValueError: ``max_chars`` is not greater than zero.
         FileNotFoundError: The PDF path does not exist.
         IsADirectoryError: The path is not a regular file.
         PdfLoadError: The PDF exists but cannot be parsed or read.
@@ -75,7 +79,7 @@ def ingest_pdf_to_store(
     document_id = _resolve_document_id(pdf_path, metadata)
 
     extracted_text = load_pdf_text(pdf_path)
-    chunks = chunk_text(extracted_text)
+    chunks = chunk_text(extracted_text, max_chars=max_chars)
 
     chunk_metadata = dict(metadata)
     chunk_metadata["document_id"] = document_id

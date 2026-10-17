@@ -423,10 +423,124 @@ class IngestPdfToStoreTests(unittest.TestCase):
             finally:
                 store.close()
 
+    def test_max_chars_is_honoured_when_storing_chunks(self) -> None:
+        """The chunk bound used for storage must be the caller's bound."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            pdf_path = Path(temp_dir) / "long.pdf"
+            pdf_path.write_bytes(
+                _create_minimal_pdf([_long_text("alpha"), _long_text("beta")])
+            )
+
+            store = ChromaVectorStore(
+                persist_directory=Path(temp_dir) / "chroma",
+            )
+            try:
+                with patch(
+                    "backend.knowledge.ingest.embed_text",
+                    side_effect=lambda _text: [0.1, 0.2, 0.3],
+                ):
+                    written = ingest_pdf_to_store(
+                        str(pdf_path), {}, store, max_chars=100
+                    )
+
+                records = store.get_records()
+                expected_chunks = chunk_text(
+                    load_pdf_text(str(pdf_path)), max_chars=100
+                )
+
+                self.assertEqual(written, len(expected_chunks))
+                self.assertGreater(written, 1)
+                self.assertTrue(
+                    all(len(record.text) <= 100 for record in records),
+                    [len(record.text) for record in records],
+                )
+                self.assertEqual(
+                    Counter(record.text for record in records),
+                    Counter(expected_chunks),
+                )
+            finally:
+                store.close()
+
+    def test_whitespace_only_document_stores_nothing(self) -> None:
+        """A PDF whose text is only whitespace must not create blank chunks."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            pdf_path = Path(temp_dir) / "whitespace.pdf"
+            pdf_path.write_bytes(b"%PDF-1.4\n")
+
+            store = ChromaVectorStore(
+                persist_directory=Path(temp_dir) / "chroma",
+            )
+            try:
+                with (
+                    patch(
+                        "backend.knowledge.ingest.load_pdf_text",
+                        return_value="   \n\n \t ",
+                    ),
+                    patch(
+                        "backend.knowledge.ingest.embed_text",
+                        side_effect=lambda _text: [0.1, 0.2, 0.3],
+                    ) as embed_mock,
+                ):
+                    written = ingest_pdf_to_store(str(pdf_path), {}, store)
+
+                self.assertEqual(written, 0)
+                self.assertEqual(len(store), 0)
+                embed_mock.assert_not_called()
+            finally:
+                store.close()
+
+    def test_stored_chunks_have_no_compatibility_characters(self) -> None:
+        """Kangxi radicals from a PDF must not survive into the stored text."""
+        # Kangxi-radical spelling of: 大连海事大学 / 工业 / 生日
+        damaged = "\u2f24连海事\u2f24学\u2f2f业\u2f63\u2f47"
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            pdf_path = Path(temp_dir) / "compat.pdf"
+            pdf_path.write_bytes(b"%PDF-1.4\n")
+
+            store = ChromaVectorStore(
+                persist_directory=Path(temp_dir) / "chroma",
+            )
+            try:
+                with (
+                    patch(
+                        "backend.knowledge.pdf_loader.PdfReader",
+                        side_effect=lambda path: _FakePdfReader(path, [damaged]),
+                    ),
+                    patch(
+                        "backend.knowledge.ingest.embed_text",
+                        side_effect=lambda _text: [0.1, 0.2, 0.3],
+                    ),
+                ):
+                    written = ingest_pdf_to_store(str(pdf_path), {}, store)
+
+                records = store.get_records()
+
+                self.assertEqual(written, 1)
+                self.assertEqual(records[0].text, "大连海事大学工业生日")
+                self.assertNotIn("\u2f24", records[0].text)
+            finally:
+                store.close()
+
 
 def _long_text(marker: str) -> str:
     """Return text long enough to force the default chunker to split it."""
     return f"{marker} " * 220
+
+
+class _FakePdfPage:
+    def __init__(self, text: str) -> None:
+        self._text = text
+
+    def extract_text(self) -> str:
+        return self._text
+
+
+class _FakePdfReader:
+    """Forces specific extracted text so PDF character sets can be tested."""
+
+    def __init__(self, _path: str, page_texts: list[str]) -> None:
+        self.pages = [_FakePdfPage(text) for text in page_texts]
 
 
 def _create_minimal_pdf(page_texts: list[str]) -> bytes:

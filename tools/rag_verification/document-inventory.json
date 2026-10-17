@@ -1,0 +1,250 @@
+{
+  "_about": "Verified provenance inventory for backend/knowledge/documents. Fields ending in _in_text are quoted verbatim from the PDF text extracted by pypdf 6.20.1 and are re-checked by .rag-verify/verify_inventory.py. Fields ending in _iso are this verification's normalisation of the verbatim date for convenience only; they are not strings from the document. Fields ending in _summary are this verification's prose characterisation and are NOT verbatim quotes. Nothing here comes from an external source.",
+  "_verified_on": "2026-10-16",
+  "documents": [
+    {
+      "file": "附件1.《大连海事大学本科生创新创业竞赛列表(2026年)》.pdf",
+      "sha256": "13c6c24a84d6b7b6bb7bfc72b5fa8f8623d9b205ae69f1ed490ae3f2512626a8",
+      "pages": 6,
+      "text_chars": 7575,
+      "document_id": "dlmu-competition-list-2026",
+      "title_in_text": "大连海事大学本科生创新创业竞赛列表(2026年)",
+      "issuing_body_in_text": null,
+      "issuing_body_note": "The list itself carries no 发文机关 or 文号 line. The PDF /Author metadata is 'whz' and the producer is PScript5.dll/Acrobat Distiller; neither is evidence of the issuing body.",
+      "document_number_in_text": null,
+      "issue_date_in_text": null,
+      "pdf_creation_date_in_text": "D:20260331104015+08'00'",
+      "applicable_scope_summary": "大连海事大学本科生创新创业竞赛 2026 年度认定列表",
+      "scope_markers": [],
+      "year_for_metadata": 2026,
+      "document_type": "竞赛列表",
+      "reliability": "content_matches_filename",
+      "caveats": [
+        "PDF text is extracted with Kangxi-radical compatibility ideographs (U+2F24 大, U+2F2F 工, U+2F63 生, ...): 37 distinct characters across 631 occurrences. Fixed by the Phase 2 NFKC repair in backend/knowledge/pdf_loader.py.",
+        "The table is extracted column-interleaved: 序号 / 竞赛名称 / 指导单位 / 赛道编号 / 类别 / 校内承办单位 are emitted in separate runs, so a chunk can lose the link between a competition and its 类别 or 承办单位.",
+        "Rows whose 类别 cell is empty extract with no category at all, so 'A 类' cannot be derived for those rows from the text alone."
+      ]
+    },
+    {
+      "file": "附件.《大连海事大学本科生创新创业竞赛列表(2025年)》.pdf",
+      "sha256": "e742b14fecddbbe07645fbece0267fbeb85b37b81481ddea26e1208248ff47b4",
+      "pages": 10,
+      "text_chars": 9584,
+      "document_id": "dlmu-competition-list-2025",
+      "title_in_text": "大连海事大学本科生创新创业竞赛列表(2025 年)",
+      "issuing_body_in_text": null,
+      "document_number_in_text": null,
+      "issue_date_in_text": null,
+      "pdf_creation_date_in_text": "D:20250723122947+08'00'",
+      "applicable_scope_summary": "大连海事大学本科生创新创业竞赛 2025 年度认定列表",
+      "scope_markers": [],
+      "year_for_metadata": 2025,
+      "document_type": "竞赛列表",
+      "reliability": "content_matches_filename",
+      "caveats": [
+        "Superseded for 2026 questions by the 2026 list, but both documents sit in the same collection and the running service applies no year filter.",
+        "Same column-interleaving extraction problem as the 2026 list."
+      ]
+    },
+    {
+      "file": "大连海事大学办公室关于印发《大连海事大学大学生创新创业竞赛管理办法》的通知.pdf",
+      "sha256": "f334c2016e4cadc55f64bec1d1b7317872980c17907e2526ef42c841b7ca8f4c",
+      "pages": 10,
+      "text_chars": 4179,
+      "document_id": "dlmu-innovation-competition-rules-2023",
+      "title_in_text": "大连海事大学大学生创新创业竞赛管理办法",
+      "issuing_body_in_text": "大连海事大学党政办公室",
+      "document_number_in_text": "连海大办字〔2023〕7 号",
+      "issue_date_in_text": "2023 年 7 月 6 日",
+      "issue_date_iso": "2023-07-06",
+      "effective_from_in_text": null,
+      "applicable_scope_summary": "全校本科生创新创业竞赛的类别划分与管理; A/B/C 三类定义见第四条",
+      "scope_markers": [
+        "第四条"
+      ],
+      "year_for_metadata": 2023,
+      "document_type": "管理办法",
+      "reliability": "verified_from_document_text",
+      "caveats": [
+        "第四条 states the attached competition list is revised periodically, so the category definitions here are current while the attached list must be read separately."
+      ]
+    },
+    {
+      "file": "大连海事大学大学生科技创新奖励办法（正文）.pdf",
+      "sha256": "5a9b5ee81ac08af7574e08b94688ae891b8b35e506f2ead24d3c89a7a57991e3",
+      "pages": 6,
+      "text_chars": 2258,
+      "document_id": "dlmu-innovation-award-2024",
+      "title_in_text": "大连海事大学大学生科技创新奖励办法",
+      "issuing_body_in_text": "大连海事大学党政办公室",
+      "document_number_in_text": "连海大办字〔2024〕5号",
+      "issue_date_in_text": "2024年4月24日",
+      "issue_date_iso": "2024-04-24",
+      "effective_from_in_text": "第十四条 本办法自 2024 年4 月 24 日起执行",
+      "effective_from_iso": "2024-04-24",
+      "supersedes_in_text": "连海大办字〔2019〕20号",
+      "applicable_scope_summary": "全日制在籍本科生, 代表大连海事大学参加的经学校认定的各级各类创新创业竞赛及学术论文、专利、著作",
+      "scope_markers": [
+        "第十三条"
+      ],
+      "year_for_metadata": 2024,
+      "document_type": "奖励办法",
+      "reliability": "verified_from_document_text",
+      "caveats": []
+    },
+    {
+      "file": "大连海事大学党政办公室关于印发《大连海事大学推荐优秀应届本科毕业生免试攻读硕士研究生办法》的通知.pdf",
+      "sha256": "5088f27ee0ef538ac7bbf43c526d6730d3b42cb3291b76056ed064aa34be361d",
+      "pages": 14,
+      "text_chars": 6169,
+      "document_id": "dlmu-postgraduate-recommendation-2025",
+      "title_in_text": "大连海事大学推荐优秀应届本科毕业生免试",
+      "title_note": "The title is line-wrapped after 免试 in the extracted text, so the full title is not a contiguous substring. verify_inventory.py checks the contiguous extracted prefix recorded here.",
+      "issuing_body_in_text": "大连海事大学党政办公室",
+      "document_number_in_text": "连海大办字〔2025〕1号",
+      "issue_date_in_text": "2025年1月16日",
+      "issue_date_iso": "2025-01-16",
+      "effective_from_in_text": "第十五条 本办法自2025年1月10日起施行",
+      "effective_from_iso": "2025-01-10",
+      "applicable_scope_summary": "适用于2022级及以后年级本科学生",
+      "scope_markers": [
+        "第十五条"
+      ],
+      "supersedes_in_text": "连海大办字〔2021〕16号",
+      "year_for_metadata": 2025,
+      "document_type": "推免办法",
+      "reliability": "verified_from_document_text",
+      "caveats": [
+        "The scope qualifier lives in 第十五条 near the end of the document; chunking can separate it from the substantive clauses, so a chunk can state a rule without its grade-level restriction."
+      ]
+    },
+    {
+      "file": "大连海事大学党政办公室关于印发《大连海事大学非航海类专业本科生学籍管理规定》的通知.pdf",
+      "sha256": "bac799d986a0d27649cba3a3b8f77d9c92011775ee02fd39f21d88cd85ad6253",
+      "pages": 24,
+      "text_chars": 11287,
+      "document_id": "dlmu-status-rules-2021",
+      "title_in_text": "大连海事大学非航海类专业本科生",
+      "title_note": "Line-wrapped in the extracted text; the contiguous prefix is recorded here.",
+      "issuing_body_in_text": "大连海事大学党政办公室",
+      "document_number_in_text": "连海大办字〔2021〕13 号",
+      "issue_date_in_text": "2021 年11 月5 日",
+      "issue_date_iso": "2021-11-05",
+      "effective_from_in_text": "第五十一条本规定自 2021 年 11 月 10 日起施行",
+      "effective_from_iso": "2021-11-10",
+      "applicable_scope_summary": "我校非航海类专业普通全日制本科生",
+      "scope_markers": [
+        "第二条"
+      ],
+      "year_for_metadata": 2021,
+      "document_type": "学籍管理规定",
+      "reliability": "verified_from_document_text",
+      "caveats": [
+        "Issued 2021. Whether a newer 学籍管理规定 exists cannot be checked from this repository; the document itself defers to 上级教育行政部门如有新的要求."
+      ]
+    },
+    {
+      "file": "大连海事大学本科生奖学金评定办法.pdf",
+      "sha256": "29af4410864a8e493799e03db9a82ea88d963173290047d4a4f9abcf595f3362",
+      "pages": 24,
+      "text_chars": 9783,
+      "document_id": "dlmu-scholarship-2023",
+      "title_in_text": "大连海事大学本科生奖学金评定办法",
+      "issuing_body_in_text": "大连海事大学党政办公室",
+      "document_number_in_text": "连海大办字〔2023〕13 号",
+      "issue_date_in_text": "2023 年 7 月 12 日",
+      "issue_date_iso": "2023-07-12",
+      "effective_from_in_text": "第二十三条 本办法由党委学生工作部负责解释,自 2023",
+      "effective_from_iso": "2023-07-12",
+      "applicable_scope_summary": "学校在籍的全日制本科学生",
+      "scope_markers": [
+        "第二条"
+      ],
+      "year_for_metadata": 2023,
+      "document_type": "奖学金评定办法",
+      "reliability": "verified_from_document_text",
+      "caveats": [
+        "Contains 附件 1/2/3 (国家奖学金、国家励志奖学金、情商奖学金评审细则) inside the same stored document."
+      ]
+    },
+    {
+      "file": "大连海事大学学生违纪处分办法.pdf",
+      "sha256": "d6498b123db93234099346f0b600a26ca566d483a5f0f767c4acefaa047a28e2",
+      "pages": 22,
+      "text_chars": 9741,
+      "document_id": "dlmu-discipline-2022",
+      "title_in_text": "大连海事大学学生违纪处分办法",
+      "issuing_body_in_text": "大连海事大学学生工作处",
+      "document_number_in_text": "连海大校发〔2022〕194 号",
+      "issue_date_in_text": "2022年9月11日",
+      "issue_date_iso": "2022-09-11",
+      "effective_from_in_text": "第六十二条 本办法自 2022 年 9 月 11 日起施行",
+      "effective_from_iso": "2022-09-11",
+      "applicable_scope_summary": "我校接受普通高等学历教育的研究生、本科生; 继续教育学生、港澳台侨学生、留学生、结业生参照执行",
+      "scope_markers": [
+        "第二条"
+      ],
+      "supersedes_in_text": "连海大校发〔2017〕329 号",
+      "year_for_metadata": 2022,
+      "document_type": "违纪处分办法",
+      "reliability": "verified_from_document_text",
+      "caveats": []
+    },
+    {
+      "file": "2025-2中队本科生综合素质测评实施细则.pdf",
+      "sha256": "c65faad29633462ca41de65960ed0d1cc15c6713dae9284c4b33613d7f7d5d00",
+      "pages": 7,
+      "text_chars": 6816,
+      "document_id": "dlmu-xinxikexue-2025-2-assessment",
+      "title_in_text": "本科生综合素质测评实施细则",
+      "title_note": "The college and 中队 line precedes the title; the contiguous title substring is recorded here.",
+      "issuing_body_in_text": null,
+      "issuing_body_note": "The body text names 信息科学技术学院2025-2中队 on the cover line but carries no 发文机关 signature, so no issuing body is recorded as verbatim text.",
+      "document_number_in_text": null,
+      "issue_date_in_text": null,
+      "effective_from_in_text": "第二十四条 本办法自2025年10月1日起施行",
+      "effective_from_iso": "2025-10-01",
+      "applicable_scope_summary": "仅适用于信息科学技术学院2025-2中队在籍全日制本科学生, 即2025级2中队学生",
+      "scope_markers": [
+        "第三条",
+        "第二十四条"
+      ],
+      "year_for_metadata": 2025,
+      "document_type": "综合素质测评实施细则",
+      "reliability": "verified_from_document_text",
+      "caveats": [
+        "Narrowest scope in the corpus: one 中队 (2025 级 2 中队) of one college. Without year/major filtering it is retrievable for any student's 综合素质测评 question.",
+        "No 文号 and no issue date on the document; the 2025-10-01 effective date is stated only in 第二十四条."
+      ]
+    },
+    {
+      "file": "大连海事大学学生离校请假单.pdf",
+      "sha256": "6e5817629f70c8afe52bcd9c252b41f3a56cd7070748992f89f887bcc535463d",
+      "pages": 1,
+      "text_chars": 400,
+      "document_id": "dlmu-leave-form",
+      "title_in_text": "大连海事大学请假申请单",
+      "issuing_body_in_text": null,
+      "document_number_in_text": null,
+      "issue_date_in_text": null,
+      "applicable_scope_summary": "请假表单, 非规范性文件; 含事假/病假/其他 选项与安全承诺条款, 抬头出现信息科学技术学院",
+      "scope_markers": [],
+      "year_for_metadata": 2025,
+      "document_type": "表单",
+      "reliability": "form_artifact_not_a_policy_document",
+      "caveats": [
+        "This is a form, not a regulation. It extracts to 42 short lines with empty fields and no dates, so it produces one very low-value chunk.",
+        "The year metadata value 2025 is an assumption of the ingest caller; no date is printed on the form."
+      ]
+    }
+  ],
+  "repository_coverage_gaps": [
+    "No 本科培养方案 or 专业课程计划 document.",
+    "No 转专业管理办法.",
+    "No dedicated 考试管理与成绩记载规定 (partially covered by the 学籍管理规定).",
+    "No current-year 国家奖学金 / 助学金 通知.",
+    "No 大学生创新创业训练计划 (大创) 管理办法.",
+    "No 2026 年校内承办竞赛的报名通知或时间表.",
+    "The repository stores no source metadata file: the dates, 文号 and issuing bodies above were read out of the PDFs during this verification and are not present in the vector store metadata."
+  ]
+}

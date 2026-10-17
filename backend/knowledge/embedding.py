@@ -10,6 +10,7 @@ from __future__ import annotations
 import math
 import os
 import threading
+import unicodedata
 from collections.abc import Sequence
 from typing import Any
 
@@ -29,6 +30,26 @@ class EmbeddingError(RuntimeError):
     """Raised when the embedding model cannot be loaded or used."""
 
 
+def normalize_for_embedding(text: str) -> str:
+    """Return the canonical form of ``text`` used for every embedding call.
+
+    Chinese PDFs produced by some generators (for example the 2026 competition
+    list in this repository) extract with Kangxi-radical compatibility
+    ideographs such as ``U+2F24`` (⼤) instead of the canonical ``U+5927`` (大).
+    The embedding model was trained on canonical text, so embedding those
+    compatibility forms shifts the vector and breaks similarity against the
+    same words typed normally in a query.
+
+    Applying NFKC to both the indexed text and the query text keeps the two
+    sides in the same space. The caller's original text is never modified;
+    only the value passed to the model is normalised.
+    """
+    if not isinstance(text, str):
+        raise TypeError("text must be a string")
+
+    return unicodedata.normalize("NFKC", text)
+
+
 def embed_text(text: str) -> list[float]:
     """Convert one text into a floating-point embedding vector.
 
@@ -46,7 +67,7 @@ def embed_text(text: str) -> list[float]:
     if not isinstance(text, str):
         raise TypeError("text must be a string")
 
-    normalized_text = text.strip()
+    normalized_text = normalize_for_embedding(text).strip()
     if not normalized_text:
         return []
 
@@ -123,4 +144,10 @@ def _vector_to_floats(vector: Sequence[float]) -> list[float]:
     return [float(value) for value in vector]
 
 
-__all__ = ["DEFAULT_EMBEDDING_MODEL", "EmbeddingError", "cosine_similarity", "embed_text"]
+__all__ = [
+    "DEFAULT_EMBEDDING_MODEL",
+    "EmbeddingError",
+    "cosine_similarity",
+    "embed_text",
+    "normalize_for_embedding",
+]
