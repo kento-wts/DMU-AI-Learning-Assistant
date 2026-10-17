@@ -213,6 +213,7 @@
     "id": "q20",
     "question": "课程考试不及格后的补考和重修是怎么安排的？",
     "expected_behaviour": "answerable",
+    "completeness": "partial",
     "expected_document_ids": ["dlmu-status-rules-2021"],
     "ground_truth_points": [
       "通过补考、重修获得的成绩予以标注",

@@ -226,5 +226,62 @@ class ChromaVectorStoreTests(unittest.TestCase):
                 store.close()
 
 
+class ChromaMinScoreTests(unittest.TestCase):
+    """The optional similarity floor used by the refusal experiments."""
+
+    def _store(self, temp_dir: str) -> ChromaVectorStore:
+        store = ChromaVectorStore(persist_directory=temp_dir)
+        store.add("close", [1.0, 0.0], {"id": "close"})
+        store.add("far", [0.0, 1.0], {"id": "far"})
+        return store
+
+    def test_default_keeps_everything_the_store_matched(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            store = self._store(temp_dir)
+            try:
+                results = store.search([1.0, 0.0], top_k=2)
+            finally:
+                store.close()
+
+        self.assertEqual([result.text for result in results], ["close", "far"])
+
+    def test_min_score_drops_weaker_hits(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            store = self._store(temp_dir)
+            try:
+                results = store.search([1.0, 0.0], top_k=2, min_score=0.5)
+            finally:
+                store.close()
+
+        self.assertEqual([result.text for result in results], ["close"])
+        self.assertGreaterEqual(results[0].score, 0.5)
+
+    def test_min_score_can_produce_an_empty_result(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            store = ChromaVectorStore(persist_directory=temp_dir)
+            try:
+                store.add("far", [0.0, 1.0], {"id": "far"})
+                results = store.search([1.0, 0.0], min_score=0.5)
+            finally:
+                store.close()
+
+        self.assertEqual(results, [])
+
+    def test_min_score_outside_unit_range_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            store = self._store(temp_dir)
+            try:
+                for value, error in (
+                    (-0.1, ValueError),
+                    (1.5, ValueError),
+                    ("0.5", TypeError),
+                ):
+                    with self.subTest(min_score=value):
+                        with self.assertRaises(error):
+                            store.search([1.0, 0.0], min_score=value)  # type: ignore[arg-type]
+            finally:
+                store.close()
+
+
 if __name__ == "__main__":
     unittest.main()

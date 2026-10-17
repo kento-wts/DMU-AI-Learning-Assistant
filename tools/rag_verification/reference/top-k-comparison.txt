@@ -1,0 +1,119 @@
+====================================================================================================
+Retrieval comparison across top_k (real model, throwaway Chroma corpus)
+====================================================================================================
+dataset:  C:\Users\zwk\Documents\Codex\DMU-AI-Learning-Assistant\backend\knowledge\evaluation_dataset.json
+questions: 24   top_k values: 3, 5, 8
+
+A hit only means the text was retrieved. This is not an accuracy metric.
+
+corpus chunks: 75   len(store): 75
+
+1) Per-question coverage
+id   category         points              k=3              k=5              k=8
+-------------------------------------------------------------------------------
+q1   未分类                   0       no-doc 0/0       no-doc 0/0       no-doc 0/0
+q2   完全可答                  4          doc 2/4          doc 2/4          doc 2/4
+q3   完全可答                  2          doc 2/2          doc 2/2          doc 2/2
+q4   完全可答                  2          doc 1/2          doc 1/2          doc 1/2
+q5   完全可答                  3          doc 2/3          doc 2/3          doc 2/3
+q6   完全可答                  3          doc 2/3          doc 2/3          doc 2/3
+q7   完全可答                  2          doc 2/2          doc 2/2          doc 2/2
+q8   完全可答                  2          doc 0/2          doc 0/2          doc 0/2
+q9   完全可答                  5          doc 3/5          doc 3/5          doc 3/5
+q10  完全可答                  1          doc 1/1          doc 1/1          doc 1/1
+q11  完全可答                  2          doc 0/2          doc 0/2          doc 1/2
+q12  完全可答                  2          doc 1/2          doc 1/2          doc 1/2
+q13  完全可答                  1          doc 1/1          doc 1/1          doc 1/1
+q14  完全可答                  2          doc 1/2          doc 1/2          doc 1/2
+q15  完全可答                  1          doc 0/1          doc 0/1          doc 0/1
+q16  完全可答                  2          doc 0/2          doc 0/2          doc 0/2
+q17  部分可答（抽取受限）            0          doc 0/0          doc 0/0          doc 0/0
+q18  完全可答                  5          doc 2/5          doc 2/5          doc 2/5
+q19  语料缺失                  0       no-doc 0/0       no-doc 0/0       no-doc 0/0
+q20  部分可答                  3          doc 3/3          doc 3/3          doc 3/3
+q21  语料缺失                  0       no-doc 0/0       no-doc 0/0       no-doc 0/0
+q22  范围不匹配                 3       no-doc 0/3       no-doc 0/3       no-doc 0/3
+q23  语料缺失                  0       no-doc 0/0       no-doc 0/0       no-doc 0/0
+q24  语料缺失                  0       no-doc 0/0       no-doc 0/0       no-doc 0/0
+
+2) Summary per top_k
+ top_k  expected-doc hits   all points covered   avg returned
+     3                 18                    5            3.0
+     5                 18                    5            5.0
+     8                 18                    5            8.0
+
+3) When the first ground-truth point appears (rank at top_k=8)
+id   category         first point rank top doc                       
+q2   完全可答                            1 dlmu-postgraduate-recommendati
+q3   完全可答                            1 dlmu-innovation-competition-ru
+q4   完全可答                            2 dlmu-innovation-award-2024    
+q5   完全可答                            1 dlmu-discipline-2022          
+q6   完全可答                            1 dlmu-status-rules-2021        
+q7   完全可答                            1 dlmu-scholarship-2023         
+q8   完全可答                    not found dlmu-xinxikexue-2025-2-assessm
+q9   完全可答                            1 dlmu-innovation-competition-ru
+q10  完全可答                            3 dlmu-xinxikexue-2025-2-assessm
+q11  完全可答                            6 dlmu-scholarship-2023         
+q12  完全可答                            3 dlmu-scholarship-2023         
+q13  完全可答                            2 dlmu-postgraduate-recommendati
+q14  完全可答                            2 dlmu-discipline-2022          
+q15  完全可答                    not found dlmu-competition-list-2025    
+q16  完全可答                    not found dlmu-competition-list-2026    
+q18  完全可答                            1 dlmu-status-rules-2021        
+q20  部分可答                            2 dlmu-status-rules-2021        
+q22  范围不匹配                   not found dlmu-xinxikexue-2025-2-assessm
+
+4) Questions with no answer in the corpus: what still comes back
+id    top score   returned@3   returned@5   returned@8
+q19      0.6590            3            5            8
+q21      0.6375            3            5            8
+q23      0.5349            3            5            8
+q24      0.5634            3            5            8
+
+5) Threshold sweep (top-1 score)
+ cut-off  false rejects  false accepts  rejected / accepted
+    0.50              0              4  - / q19,q21,q23,q24
+    0.51              0              4  - / q19,q21,q23,q24
+    0.52              0              4  - / q19,q21,q23,q24
+    0.53              0              4  - / q19,q21,q23,q24
+    0.54              0              3  - / q19,q21,q24
+    0.55              0              3  - / q19,q21,q24
+    0.56              0              3  - / q19,q21,q24
+    0.57              0              2  - / q19,q21
+    0.58              0              2  - / q19,q21
+    0.59              0              2  - / q19,q21
+    0.60              0              2  - / q19,q21
+    0.61              0              2  - / q19,q21
+    0.62              0              2  - / q19,q21
+    0.63              0              2  - / q19,q21
+    0.64              1              1  q20 / q19
+    0.65              1              1  q20 / q19
+    0.66              1              0  q20 / -
+    0.67              2              0  q16,q20 / -
+    0.68              2              0  q16,q20 / -
+    0.69              4              0  q10,q15,q16,q20 / -
+    0.70              4              0  q10,q15,q16,q20 / -
+    0.71              6              0  q10,q12,q13,q15,q16,q20 / -
+    0.72              7              0  q10,q12,q13,q15,q16,q17,q20 / -
+    0.73              9              0  q10,q11,q12,q13,q14,q15,q16,q17,q20 / -
+    0.74             10              0  q10,q11,q12,q13,q14,q15,q16,q17,q18,q20 / -
+    0.75             11              0  q8,q10,q11,q12,q13,q14,q15,q16,q17,q18,q20 / -
+    0.76             12              0  q5,q8,q10,q11,q12,q13,q14,q15,q16,q17,q18,q20 / -
+    0.77             12              0  q5,q8,q10,q11,q12,q13,q14,q15,q16,q17,q18,q20 / -
+    0.78             12              0  q5,q8,q10,q11,q12,q13,q14,q15,q16,q17,q18,q20 / -
+    0.79             14              0  q5,q7,q8,q9,q10,q11,q12,q13,q14,q15,q16,q17,q18,q20 / -
+    0.80             16              0  q2,q5,q6,q7,q8,q9,q10,q11,q12,q13,q14,q15,q16,q17,q18,q20 / -
+
+6) Score bands
+可答（完全+部分）        n=18  min=0.6346  median=0.7379  max=0.8076
+语料缺失             n= 4  min=0.5349  median=0.6375  max=0.6590
+
+7) Key-clause probe: does the scope clause reach the model?
+   clause: 适用于2022级及以后年级本科学生
+phrasing                 first rank      k=3      k=5      k=8
+2026-10 E2E phrasing              5       no      yes      yes
+curated q13 phrasing              2      yes      yes      yes
+
+   Some curated points are review statements rather than verbatim text
+   (q15, q16, q22, and the summary half of q8/q18), so they can never
+   match a chunk. Coverage above is only meaningful for verbatim points.

@@ -16,16 +16,19 @@ class FakeStore:
         self.last_query_vector: list[float] | None = None
         self.last_top_k: int | None = None
         self.last_metadata_filter: dict[str, Any] | None = None
+        self.last_min_score: float | None = None
 
     def search(
         self,
         query_vector: list[float],
         top_k: int = DEFAULT_TOP_K,
         metadata_filter: dict[str, Any] | None = None,
+        min_score: float | None = None,
     ) -> list[SearchResult]:
         self.last_query_vector = query_vector
         self.last_top_k = top_k
         self.last_metadata_filter = metadata_filter
+        self.last_min_score = min_score
 
         if metadata_filter:
             filtered = [
@@ -146,6 +149,41 @@ class RetrieverTests(unittest.TestCase):
 
         with self.assertRaisesRegex(TypeError, "metadata_filter must be a dictionary"):
             retriever.retrieve("query", metadata_filter="year")  # type: ignore[arg-type]
+
+    def test_min_score_is_forwarded_to_the_store(self) -> None:
+        store = FakeStore([_result("first", {})])
+        retriever = Retriever(store)
+
+        with patch(
+            "backend.knowledge.retriever.embed_text",
+            return_value=[0.1, 0.2, 0.3],
+        ):
+            retriever.retrieve("query", min_score=0.7)
+
+        self.assertEqual(store.last_min_score, 0.7)
+
+    def test_min_score_defaults_to_none(self) -> None:
+        store = FakeStore([_result("first", {})])
+        retriever = Retriever(store)
+
+        with patch(
+            "backend.knowledge.retriever.embed_text",
+            return_value=[0.1, 0.2, 0.3],
+        ):
+            retriever.retrieve("query")
+
+        self.assertIsNone(store.last_min_score)
+
+    def test_min_score_outside_unit_range_raises(self) -> None:
+        retriever = Retriever(FakeStore([]))
+
+        for value, error in ((-0.1, ValueError), (1.5, ValueError), ("0.5", TypeError)):
+            with self.subTest(min_score=value):
+                with patch("backend.knowledge.retriever.embed_text") as embed_mock:
+                    with self.assertRaises(error):
+                        retriever.retrieve("query", min_score=value)  # type: ignore[arg-type]
+
+                embed_mock.assert_not_called()
 
 
 if __name__ == "__main__":

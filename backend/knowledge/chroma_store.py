@@ -215,8 +215,22 @@ class ChromaVectorStore:
         query_vector: list[float],
         top_k: int = 3,
         metadata_filter: dict[str, Any] | None = None,
+        min_score: float | None = None,
     ) -> list[SearchResult]:
-        """Return the ``top_k`` most relevant chunks from Chroma."""
+        """Return the ``top_k`` most relevant chunks from Chroma.
+
+        Args:
+            query_vector: Query embedding.
+            top_k: Maximum number of chunks to ask Chroma for.
+            metadata_filter: Equality filter passed to Chroma.
+            min_score: Optional similarity floor. Chunks scoring below it are
+                dropped from the result **after** retrieval, so the returned
+                list can be shorter than ``top_k`` (possibly empty). ``None``
+                keeps the previous behaviour of always returning whatever
+                Chroma matched. This is opt-in on purpose: no production caller
+                sets it yet, because a cut-off has to be chosen from measured
+                data (see tools/rag_verification/reference/top-k-comparison.txt).
+        """
         if isinstance(top_k, bool) or not isinstance(top_k, int) or top_k < 1:
             raise ValueError("top_k must be an integer greater than zero")
 
@@ -224,6 +238,12 @@ class ChromaVectorStore:
 
         if metadata_filter is not None and not isinstance(metadata_filter, dict):
             raise TypeError("metadata_filter must be a dictionary")
+
+        if min_score is not None:
+            if isinstance(min_score, bool) or not isinstance(min_score, (int, float)):
+                raise TypeError("min_score must be a number or None")
+            if not 0.0 <= float(min_score) <= 1.0:
+                raise ValueError("min_score must be between 0 and 1")
 
         collection_size = self._collection.count()
         if collection_size == 0:
@@ -249,6 +269,9 @@ class ChromaVectorStore:
                     metadata=dict(metadata or {}),
                 )
             )
+
+        if min_score is not None:
+            results = [result for result in results if result.score >= float(min_score)]
 
         return results
 

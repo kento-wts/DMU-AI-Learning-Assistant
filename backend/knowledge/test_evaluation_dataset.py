@@ -99,5 +99,60 @@ class EvaluationDatasetTests(unittest.TestCase):
                     self.assertIn(document_id, known)
 
 
+def _category(entry: dict) -> str | None:
+    """Map one entry to the review categories used by the quality report."""
+    behaviour = entry.get("expected_behaviour")
+    if behaviour == "not_in_corpus":
+        return "corpus_missing"
+    if behaviour == "scope_mismatch":
+        return "scope_mismatch"
+    if behaviour == "not_reliably_answerable_from_text":
+        return "partial"
+    if behaviour == "answerable":
+        return "partial" if entry.get("completeness") == "partial" else "full"
+    return None
+
+
+class DatasetCategoryTests(unittest.TestCase):
+    """The four review categories must stay distinguishable in the data."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.dataset = _load_dataset()
+
+    def test_all_four_categories_are_represented(self) -> None:
+        categories = {_category(entry) for entry in self.dataset}
+
+        self.assertTrue(
+            {"full", "partial", "corpus_missing", "scope_mismatch"} <= categories,
+            f"missing categories, got {categories}",
+        )
+
+    def test_partial_entries_stay_answerable_with_ground_truth(self) -> None:
+        partial = [entry for entry in self.dataset if entry.get("completeness") == "partial"]
+
+        self.assertTrue(partial, "at least one partially answerable question is expected")
+        for entry in partial:
+            with self.subTest(entry=entry["id"]):
+                self.assertEqual(entry.get("expected_behaviour"), "answerable")
+                self.assertTrue(entry.get("expected_document_ids"))
+                self.assertTrue(entry.get("ground_truth_points"))
+
+    def test_completeness_values_are_known(self) -> None:
+        for entry in self.dataset:
+            value = entry.get("completeness")
+            if value is None:
+                continue
+            with self.subTest(entry=entry["id"]):
+                self.assertIn(value, {"full", "partial"})
+
+    def test_corpus_gaps_carry_no_completeness(self) -> None:
+        for entry in self.dataset:
+            if entry.get("expected_behaviour") != "not_in_corpus":
+                continue
+            with self.subTest(entry=entry["id"]):
+                self.assertNotIn("completeness", entry)
+
+
 if __name__ == "__main__":
     unittest.main()

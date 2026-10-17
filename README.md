@@ -142,7 +142,7 @@ CORS 只放行 `http://localhost:5173` 与 `http://127.0.0.1:5173`。
 python -m unittest discover -s backend -t . -p "test_*.py"
 ```
 
-当前 **143 个用例全部通过**（约 18 秒）。覆盖抽取、切块、向量化、存储、检索、
+当前 **154 个用例全部通过**（约 18 秒）。覆盖抽取、切块、向量化、存储、检索、
 prompt 组装、入库幂等性、问题集自洽性与入库文档表的一致性。
 
 ## 验证工具（`tools/rag_verification/`）
@@ -163,9 +163,11 @@ prompt 组装、入库幂等性、问题集自洽性与入库文档表的一致�
 
 1. ~~生产链路不传 `metadata_filter`~~ **已修复（仅限显式年份）**：问题写明「2026 年」时
    只检索 2026 年资料；未写年份时仍是全库检索。`major` 与适用范围仍不推断（P0-1）。
-2. **默认 `top_k=3` 偏小**：承载"适用范围"的条款常排在更后面，取不到时模型会自行推断，
-   并附上出处，看起来完全可信（P0-2）。
-3. **没有最低分阈值**："库里没有资料"与"只有弱相关片段"无法区分（P0-3）。
+2. **关键条款可能取不到**（P0-2）：条款遗漏**依赖问法**——同一条"适用范围"条款
+   在不同问法下排第 5 名或第 2 名；提高 `top_k` 未带来覆盖提升，只增加无关片段。
+   见 [`RETRIEVAL_QUALITY.md`](RETRIEVAL_QUALITY.md)。
+3. **没有可证明可靠的最低分阈值**（P0-3）：正负例分数区间相距仅 0.024。
+   见 [`RETRIEVAL_QUALITY.md`](RETRIEVAL_QUALITY.md)。
 
 ## 尚未实现
 
@@ -187,5 +189,6 @@ prompt 组装、入库幂等性、问题集自洽性与入库文档表的一致�
 | `README.md` | 本文件：项目结构、启动、知识库流程 |
 | `RAG_VERIFICATION.md` | RAG 验证报告：流程说明、实测数据、问题清单 |
 | `OPEN_ISSUES.md` | 当前未解决的问题与待决策事项 |
+| `RETRIEVAL_QUALITY.md` | 检索质量评估：`top_k` 对比与拒答阈值实验 |
 | `PULL_REQUEST.md` | `feat/rag-verification` 的 PR 描述 |
 | `tools/rag_verification/README.md` | 验证脚本的用法与结果解读 |
