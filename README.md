@@ -25,6 +25,7 @@ backend/
     embedding.py            文本 → 向量（本地模型）
     chroma_store.py         Chroma 读写与相似度检索
     retriever.py            检索编排
+    query_filters.py        从问题中的显式年份生成检索过滤条件
     prompt_builder.py       检索结果 → 带来源的 prompt
     ingest.py               单份 PDF 的完整入库流程
     ingest_document.py       单文件入库 CLI（需要手工传全部元数据）
@@ -141,7 +142,7 @@ CORS 只放行 `http://localhost:5173` 与 `http://127.0.0.1:5173`。
 python -m unittest discover -s backend -t . -p "test_*.py"
 ```
 
-当前 **128 个用例全部通过**（约 16 秒）。覆盖抽取、切块、向量化、存储、检索、
+当前 **143 个用例全部通过**（约 18 秒）。覆盖抽取、切块、向量化、存储、检索、
 prompt 组装、入库幂等性、问题集自洽性与入库文档表的一致性。
 
 ## 验证工具（`tools/rag_verification/`）
@@ -160,7 +161,8 @@ prompt 组装、入库幂等性、问题集自洽性与入库文档表的一致�
 
 见 [`OPEN_ISSUES.md`](OPEN_ISSUES.md)。摘要：
 
-1. **生产链路不传 `metadata_filter`**：问 2026 年时返回的是 2025 年名单（P0-1）。
+1. ~~生产链路不传 `metadata_filter`~~ **已修复（仅限显式年份）**：问题写明「2026 年」时
+   只检索 2026 年资料；未写年份时仍是全库检索。`major` 与适用范围仍不推断（P0-1）。
 2. **默认 `top_k=3` 偏小**：承载"适用范围"的条款常排在更后面，取不到时模型会自行推断，
    并附上出处，看起来完全可信（P0-2）。
 3. **没有最低分阈值**："库里没有资料"与"只有弱相关片段"无法区分（P0-3）。

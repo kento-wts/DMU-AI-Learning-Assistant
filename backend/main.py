@@ -11,6 +11,7 @@ from pydantic import BaseModel
 
 from .knowledge.chroma_store import ChromaVectorStore
 from .knowledge.prompt_builder import build_rag_prompt
+from .knowledge.query_filters import RetrievalScope, build_retrieval_scope
 from .knowledge.retriever import Retriever
 
 
@@ -126,6 +127,34 @@ def _build_deepseek_messages(
     return deepseek_messages
 
 
+def _build_missing_scope_response(scope: RetrievalScope) -> StreamingResponse:
+    """Answer with an explicit "no material for this scope" SSE message.
+
+    The filter returned nothing, so no model call is made and no other year's
+    material is used as evidence. The SSE shape matches the normal answer
+    (``data: {"content": ...}`` then ``data: [DONE]``) so the frontend needs no
+    change.
+    """
+    message = (
+        f"知识库中没有检索到 {scope.describe_years()} 年的相关资料。"
+        "本次检索已按年份过滤，没有改用其他年份的资料作答。"
+        "你可以换一个年份提问，或者去掉年份限制后重试。"
+    )
+
+    def generate() -> Iterator[str]:
+        yield "data: " + json.dumps({"content": message}, ensure_ascii=False) + "\n\n"
+        yield "data: [DONE]\n\n"
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
 @app.get("/api/hello")
 def hello() -> dict:
     return {"message": "Hello, DMU AI!"}
@@ -140,8 +169,25 @@ def chat(request: ChatRequest) -> StreamingResponse:
             detail="请求中没有 user 消息",
         )
 
-    results = _get_retriever().retrieve(latest_user.content)
-    rag_prompt = build_rag_prompt(latest_user.content, results)
+    # Only constraints written in the question are applied; see query_filters.
+    scope = build_retrieval_scope(latest_user.content)
+    results = _get_retriever().retrieve(
+        latest_user.content,
+        metadata_filter=scope.metadata_filter,
+    )
+
+    if scope.metadata_filter and not results:
+        return _build_missing_scope_response(scope)
+
+    if scope.note:
+        rag_prompt = build_rag_prompt(
+            latest_user.content,
+            results,
+            note=scope.note,
+        )
+    else:
+        rag_prompt = build_rag_prompt(latest_user.content, results)
+
     deepseek_messages = _build_deepseek_messages(request, rag_prompt)
 
     def generate() -> Iterator[str]:

@@ -264,5 +264,103 @@ class MainChatTests(unittest.TestCase):
         )
 
 
+class MainChatScopeTests(unittest.TestCase):
+    """The production path must apply explicit year constraints to retrieval."""
+
+    def setUp(self) -> None:
+        self.results = [
+            SearchResult(
+                text="2026 年竞赛列表",
+                score=0.9,
+                metadata={"year": 2026, "document_id": "dlmu-competition-list-2026"},
+            )
+        ]
+        self.retriever = FakeRetriever(self.results)
+
+    def _chat(self, question: str, retriever: Any = None, client: Any = None) -> list[str]:
+        request = main.ChatRequest(messages=_messages(("user", question)))
+        with (
+            patch.object(main, "_get_retriever", return_value=retriever or self.retriever),
+            patch.object(main, "client", client or FakeClient([FakeChunk("回答")])),
+            patch("backend.main.build_rag_prompt", return_value="RAG_PROMPT"),
+        ):
+            return _consume(main.chat(request))
+
+    def test_explicit_year_reaches_the_production_retrieval_call(self) -> None:
+        self._chat("2026年大连海事大学本科生有哪些创新创业竞赛？")
+
+        self.assertEqual(
+            self.retriever.retrieve_calls[0]["metadata_filter"],
+            {"year": 2026},
+        )
+
+    def test_question_without_a_year_keeps_the_previous_unfiltered_behaviour(self) -> None:
+        self._chat("大连海事大学本科生有哪些创新创业竞赛？")
+
+        self.assertIsNone(self.retriever.retrieve_calls[0]["metadata_filter"])
+
+    def test_filtered_search_with_no_hits_answers_explicitly_without_calling_the_model(self) -> None:
+        empty_retriever = FakeRetriever([])
+        client = FakeClient([FakeChunk("不应该出现")])
+
+        events = self._chat("2026年有哪些创新创业竞赛？", retriever=empty_retriever, client=client)
+        text = "".join(events)
+
+        self.assertEqual(len(events), 2)
+        self.assertTrue(events[0].startswith('data: {"content": '))
+        self.assertEqual(events[1], "data: [DONE]\n\n")
+        self.assertIn("2026", text)
+        self.assertIn("没有检索到", text)
+        self.assertIsNone(client.chat.completions.last_request)
+
+    def test_history_roles_are_unchanged_when_a_filter_is_applied(self) -> None:
+        client = FakeClient([FakeChunk("回答")])
+        request = main.ChatRequest(
+            messages=_messages(
+                ("user", "2025年有哪些竞赛？"),
+                ("ai", "2025 年的回答"),
+                ("user", "2026年呢？"),
+            )
+        )
+
+        with (
+            patch.object(main, "_get_retriever", return_value=self.retriever),
+            patch.object(main, "client", client),
+            patch("backend.main.build_rag_prompt", return_value="RAG_PROMPT"),
+        ):
+            _consume(main.chat(request))
+
+        sent_messages = client.chat.completions.last_request["messages"]
+        self.assertEqual(
+            sent_messages[1:],
+            [
+                {"role": "user", "content": "2025年有哪些竞赛？"},
+                {"role": "assistant", "content": "2025 年的回答"},
+                {"role": "user", "content": "2026年呢？"},
+            ],
+        )
+        self.assertEqual(
+            self.retriever.retrieve_calls[0]["metadata_filter"],
+            {"year": 2026},
+        )
+
+    def test_prompt_receives_the_scope_note_when_the_year_is_applied(self) -> None:
+        request = main.ChatRequest(
+            messages=_messages(("user", "2026年有哪些创新创业竞赛？"))
+        )
+
+        with (
+            patch.object(main, "_get_retriever", return_value=self.retriever),
+            patch.object(main, "client", FakeClient([FakeChunk("回答")])),
+            patch("backend.main.build_rag_prompt", return_value="RAG_PROMPT") as prompt_mock,
+        ):
+            _consume(main.chat(request))
+
+        prompt_mock.assert_called_once()
+        args, kwargs = prompt_mock.call_args
+        self.assertEqual(args[0], "2026年有哪些创新创业竞赛？")
+        self.assertIn("2026", kwargs["note"])
+
+
 if __name__ == "__main__":
     unittest.main()

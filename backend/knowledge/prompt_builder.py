@@ -27,19 +27,25 @@ PROVENANCE_KEYS: tuple[tuple[str, str], ...] = (
 def build_rag_prompt(
     query: str,
     results: list[SearchResult],
+    note: str | None = None,
 ) -> str:
     """Compose a query and retrieved chunks into one RAG prompt.
 
     Args:
         query: The user's natural-language question.
         results: Retrieved chunks in relevance order. Their order is preserved.
+        note: Optional note about the retrieval scope (for example "only 2026
+            documents were searched"). It is rendered in its own block before
+            the question so the model can state the scope. ``None`` keeps the
+            previous prompt layout byte for byte.
 
     Returns:
         A complete prompt string for the language model.
 
     Raises:
-        TypeError: ``query`` is not a string, ``results`` is not a list, or an
-            item in ``results`` is not a ``SearchResult``.
+        TypeError: ``query`` is not a string, ``results`` is not a list, an item
+            in ``results`` is not a ``SearchResult``, or ``note`` is not a
+            string.
         ValueError: ``query`` is empty or whitespace-only.
     """
     if not isinstance(query, str):
@@ -54,7 +60,11 @@ def build_rag_prompt(
         if not isinstance(result, SearchResult):
             raise TypeError("results must contain only SearchResult objects")
 
+    if note is not None and not isinstance(note, str):
+        raise TypeError("note must be a string or None")
+
     knowledge_block = _build_knowledge_block(results)
+    scope_block = f"【检索范围】\n\n{note}\n\n" if note else ""
 
     return (
         "请根据以下知识库资料回答用户问题。\n"
@@ -65,6 +75,7 @@ def build_rag_prompt(
         "\n"
         f"{knowledge_block}\n"
         "\n"
+        f"{scope_block}"
         "【用户问题】\n"
         "\n"
         f"{query}"

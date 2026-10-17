@@ -358,7 +358,8 @@ python -m unittest discover -s backend -t . -p "test_*.py"
 | 阶段一 · 修复前基线 | 同上 | `Ran 87 tests ... OK` |
 | 阶段一 · 修复后（含新增 27 个用例） | 同上 | `Ran 114 tests in 18.775s ... OK` |
 | 阶段二 · 加入问题集护栏 | 同上 | `Ran 122 tests ... OK` |
-| **阶段三 · 当前** | 同上 | **`Ran 128 tests in 16.723s ... OK`，退出码 0** |
+| 阶段三 · 索引与产物 | 同上 | `Ran 128 tests in 16.723s ... OK` |
+| **阶段四 · 当前（年份过滤）** | 同上 | **`Ran 143 tests in 18.110s ... OK`，退出码 0** |
 
 注：`pypdf` 会对 `test_pdf_loader` / `test_ingest` 里故意构造的非法 PDF 打印
 `invalid pdf header` / `EOF marker not found` 到 stderr，这是被测代码的预期分支，不是失败。
@@ -404,7 +405,7 @@ python tools/rag_verification/verify_inventory.py  # 校验来源清单的 45 �
 
 | 命令 | 退出码 | 摘要 |
 | --- | --- | --- |
-| `python -m unittest discover -s backend -t . -p "test_*.py"` | **0** | `Ran 128 tests in 16.723s` → OK |
+| `python -m unittest discover -s backend -t . -p "test_*.py"` | **0** | `Ran 143 tests in 18.110s` → OK |
 | `python tools/rag_verification/verify_inventory.py` | **0** | 10 份文档 / 45 条断言 → PASS |
 | `python tools/rag_verification/verify_rag.py` | **0** | E1 75 chunks、E2 重复 ID 0 → PASS、E10 8/9 上升 |
 | `python tools/rag_verification/check_retrieval.py` | **0** | 24 题；18 道有期望文档的题全部进 top_3；负样本 0.5349–0.6590 |
@@ -511,7 +512,7 @@ P1、P2、P3 中：
 - 重建方式：`python -m backend.knowledge.build_index`（幂等、可重复执行、不会删库）；
   只产出文本与切片、不碰向量库的是 `python -m backend.knowledge.export_chunks`。
 - 复核方式：`verify_rag.py`（E1–E10）与 `verify_inventory.py`（45 条来源断言）。
-  本次已复核：128 个用例全部通过，且库中记录数 / 切片文件行数 / 文本文件数三者一致。
+  本次已复核：143 个用例全部通过，且库中记录数 / 切片文件行数 / 文本文件数三者一致。
 
 ### 3.3 阶段三新增的发现
 

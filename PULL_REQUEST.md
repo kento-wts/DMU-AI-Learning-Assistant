@@ -35,7 +35,7 @@
 | --- | --- | --- |
 | 知识库修复 | `embedding.py`、`pdf_loader.py`、`prompt_builder.py`、`ingest.py` | P1（NFKC 双侧归一化）、P2（`max_chars` 透传）、P3（prompt 携带来源与年份） |
 | 新增入库脚本 | `build_index.py`、`export_chunks.py` | 批量入库 / 导出文本与切片 |
-| 测试 | 修改 4 个、新增 3 个（含 `test_build_index.py`、`test_evaluation_dataset.py`、`test_knowledge_documents.py`） | 87 → 128 个用例 |
+| 测试 | 修改 5 个、新增 4 个（含 `test_build_index.py`、`test_evaluation_dataset.py`、`test_knowledge_documents.py`、`test_query_filters.py`） | 87 → 143 个用例 |
 | 问题集 | `evaluation_dataset.json` | 1 → **24 条**，带标准答案与期望行为（阶段三修正了 q18/q20 两处错误标注） |
 | 数据产物 | `data/chroma/`、`data/exports/` | 向量库（75 条）与各阶段文件，新纳入版本控制 |
 | 验证工具 | `tools/rag_verification/`（10 个文件） | 只读验证脚本与实验存档 |
@@ -113,7 +113,7 @@ python tools/rag_verification/verify_rag.py   # E5、E7
 
 | 编号 | 问题 | 为什么没动 |
 | --- | --- | --- |
-| O1 | `metadata_filter` 未接入主流程（见上） | 需改 `main.py` + 产品决策（过滤方式、空结果降级策略） |
+| O1 | ~~`metadata_filter` 未接入主流程~~ | **已修复（阶段四）**：问题中显式出现的单一文档年份会作为 `metadata_filter` 传入真实检索；过滤为空时返回显式提示、不调用模型。`major`/适用范围仍不推断（见 P1-4） |
 | O2 | 中队级测评细则（仅 2025 级 2 中队）全库可检索 | 属 O1 的元数据过滤范畴 |
 | O3 | 请假单（表单，非制度文件）入库 | 建议单独定 `document_type` 并默认排除 |
 | L1 | 竞赛列表按列分离抽取，chunk 丢失行归属 | 需表格/版面解析，属"重写 RAG"范畴 |
@@ -124,9 +124,9 @@ python tools/rag_verification/verify_rag.py   # E5、E7
 | P5 | NFKC 不覆盖 CJK 部首补充（U+2E80–2EFF），2026 列表仍残留 8 字 / 23 处 | 属修改既有修复，未擅自改动 |
 | — | 命中为空时的降级策略（过滤后为空：回退还是明确拒答） | 与 O1 一并决策，本 PR 不改主流程 |
 
-**以上问题在本 PR 中全部未解决**，只是被记录在 `OPEN_ISSUES.md` 里作为后续任务。
-本 PR 刻意不改 `backend/main.py`，因此**不涉及**线上 metadata 过滤、`top_k`
-与无相关结果降级策略的任何行为变化。
+**除 O1 外，以上问题在本 PR 中仍未解决**，只是被记录在 `OPEN_ISSUES.md` 里作为后续任务。
+`top_k` 取值、最低分阈值与「命中为空的通用降级策略」都**没有**改动；
+O1 的实现只覆盖"问题里显式写出的单一文档年份"这一种情况。
 
 ## 兼容性与行为变化
 
@@ -143,13 +143,14 @@ python tools/rag_verification/verify_rag.py   # E5、E7
 
 ## 测试
 
-**当前测试总数：128**（阶段一 87 → 阶段二 114 → 阶段三 128）。下表按阶段记录当时的输出。
+**当前测试总数：143**（阶段一 87 → 阶段二 114 → 阶段三 128 → 阶段四 143）。下表按阶段记录当时的输出。
 
 ```powershell
 python -m unittest discover -s backend -t . -p "test_*.py"
 # 阶段一 修复前：Ran 87 tests ... OK
 # 阶段一 修复后：Ran 114 tests ... OK
-# 阶段三 当前：  Ran 128 tests ... OK
+# 阶段三：      Ran 128 tests ... OK
+# 阶段四 当前：  Ran 143 tests ... OK
 ```
 
 新增用例：
@@ -247,7 +248,7 @@ python tools/rag_verification/verify_rag.py         # E1–E10
 
 | 命令 | 实际结果（2026-10-17 重跑） | 退出码 |
 | --- | --- | --- |
-| `python -m unittest discover -s backend -t . -p "test_*.py"` | `Ran 128 tests in 16.723s` → **OK** | **0** |
+| `python -m unittest discover -s backend -t . -p "test_*.py"` | `Ran 143 tests in 18.110s` → **OK**（阶段三时为 128） | **0** |
 | `python tools/rag_verification/verify_inventory.py` | `documents checked: 10   text claims verified: 45` → `PASS` | **0** |
 | `python tools/rag_verification/verify_rag.py` | E1 75 chunks、E2 幂等 `PASS`（重复 ID 0）、E10 8/9 chunk 分数上升 | **0** |
 | `python tools/rag_verification/check_retrieval.py` | 24 题；18 道有期望文档的题全部进 top_3；负样本第一名 0.5349–0.6590 | **0** |
@@ -260,6 +261,45 @@ python tools/rag_verification/verify_rag.py         # E1–E10
 
 集中记录在 [`OPEN_ISSUES.md`](OPEN_ISSUES.md)：3 个 P0（元数据过滤未接入、默认 `top_k` 过小、
 无最低分阈值）、4 个 P1（数据质量）、2 个 P2（环境与链路缺口），并汇总了需要负责人拍板的 6 项决策。
+
+## 阶段四：把年份过滤接入生产检索链路
+
+### 设计取舍
+
+| 决策 | 理由 |
+| --- | --- |
+| **不改 HTTP 请求模型** | 过滤条件从问题文本里抽取，请求体仍是 `{messages}`，前端与接口零改动 |
+| **只认显式年份** | 只处理形如「2026 年」的文档年份；`major`、年级、适用范围一律不推断（推断会静默隐藏用户问到的资料） |
+| **多年度问题不过滤** | 「2025 和 2026 有什么区别」需要两边证据，过滤会丢掉一半；改为在 prompt 里说明未按年份过滤 |
+| **排除"人"的年份** | 「2023 年入学」「2023 级」描述的是学生而不是资料，不作为过滤依据 |
+| **空结果不静默回退** | 过滤后为空时直接返回显式说明的 SSE，不调用模型、不改用其他年份作答 |
+
+### 改动文件
+
+| 文件 | 改动 |
+| --- | --- |
+| `backend/knowledge/query_filters.py`（新增） | 年份抽取 + `RetrievalScope`（含 `metadata_filter` 与 prompt 说明） |
+| `backend/main.py` | `chat()` 把 `metadata_filter` 传给真实 `retrieve()`；过滤为空走显式 SSE；prompt 带「检索范围」 |
+| `backend/knowledge/prompt_builder.py` | `build_rag_prompt(..., note=None)` 新增**可选**参数，不传时输出与改动前逐字节一致 |
+| `backend/knowledge/test_query_filters.py`（新增） | 10 个用例：单年份 / 无年份 / 全角数字 / 学级排除 / 多年度 / 不推断专业 |
+| `backend/test_main.py` | 新增 5 个用例：过滤生效、无年份不过滤、空结果显式提示且不调模型、历史消息兼容、prompt 带范围说明 |
+
+### 实测（真实索引 75 条）
+
+| 问题 | 传入的过滤 | 返回 |
+| --- | --- | --- |
+| 2026 年有哪些创新创业竞赛 | `{"year": 2026}` | 3 条**全部**来自 `dlmu-competition-list-2026`，年份集合 `[2026]` |
+| 有哪些创新创业竞赛（无年份） | 无 | 与改动前一致（2025 列表 #1、2023 办法、2024 奖励） |
+| 2019 年有哪些创新创业竞赛 | `{"year": 2019}` | **0 条** → SSE「知识库中没有检索到 2019 年的相关资料……没有改用其他年份的资料作答」，且**不调用模型** |
+
+测试：`Ran 143 tests in 18.110s` → **OK**，退出码 **0**（128 → 143，新增 15 个）。
+
+### 兼容性
+
+- 请求体、SSE 帧格式（`data: {"content": ...}` / `data: [DONE]`）、DeepSeek 调用方式、
+  聊天历史映射均未改变
+- `build_rag_prompt` 只增加可选参数，不传时输出与改动前一致（既有测试未修改即通过）
+- 前端无需改动
 
 ## 知识材料来源
 
