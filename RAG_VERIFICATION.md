@@ -355,8 +355,10 @@ python -m unittest discover -s backend -t . -p "test_*.py"
 
 | 阶段 | 命令 | 结果 |
 | --- | --- | --- |
-| 修复前基线 | 同上 | `Ran 87 tests ... OK` |
-| 修复后（含新增 27 个用例） | 同上 | `Ran 114 tests in 18.775s ... OK` |
+| 阶段一 · 修复前基线 | 同上 | `Ran 87 tests ... OK` |
+| 阶段一 · 修复后（含新增 27 个用例） | 同上 | `Ran 114 tests in 18.775s ... OK` |
+| 阶段二 · 加入问题集护栏 | 同上 | `Ran 122 tests ... OK` |
+| **阶段三 · 当前** | 同上 | **`Ran 128 tests in 16.723s ... OK`，退出码 0** |
 
 注：`pypdf` 会对 `test_pdf_loader` / `test_ingest` 里故意构造的非法 PDF 打印
 `invalid pdf header` / `EOF marker not found` 到 stderr，这是被测代码的预期分支，不是失败。
@@ -397,6 +399,15 @@ python tools/rag_verification/verify_inventory.py  # 校验来源清单的 45 �
 | E8 来源可追溯 | 修复后 prompt 含 `来源文件` 与 `适用年份`；`chunk_hash` 未泄漏 |
 | E9 修复前/后同 query 对比 | top_3：0/4 → 0/4；top_5：3/4 → 3/4；top_10：3/4 → 3/4（**排名未变**，见下方说明） |
 | E10 逐 chunk 分数对比 | 2026 列表 9 个 chunk 中 8 个分数上升，最大 +0.043542，1 个 −0.003380 |
+
+**本轮重跑记录（2026-10-17，数据集修正后）**：
+
+| 命令 | 退出码 | 摘要 |
+| --- | --- | --- |
+| `python -m unittest discover -s backend -t . -p "test_*.py"` | **0** | `Ran 128 tests in 16.723s` → OK |
+| `python tools/rag_verification/verify_inventory.py` | **0** | 10 份文档 / 45 条断言 → PASS |
+| `python tools/rag_verification/verify_rag.py` | **0** | E1 75 chunks、E2 重复 ID 0 → PASS、E10 8/9 上升 |
+| `python tools/rag_verification/check_retrieval.py` | **0** | 24 题；18 道有期望文档的题全部进 top_3；负样本 0.5349–0.6590 |
 
 **关于 E9 的诚实说明**：修复前后 top_k 命中数**没有变化**。
 原因是受影响的那条 2026 chunk 原本就排在第 5 名，+0.0435 的分数提升不足以让它挤进前 3。

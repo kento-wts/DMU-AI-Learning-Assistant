@@ -9,7 +9,7 @@ top_k:            5
 A quote appearing below only means the text was retrieved. It is not a
 relevance verdict and not recall; a human still has to read the chunk.
 
-throwaway Chroma dir (the repo index is never opened): C:\Users\zwk\AppData\Local\Temp\tmpbq9gxtb5\chroma
+throwaway Chroma dir (the repo index is never opened): C:\Users\zwk\AppData\Local\Temp\tmpvzw4x1tn\chroma
 corpus chunks: 75   len(store): 75
 
 ------------------------------------------------------------------------------------------------

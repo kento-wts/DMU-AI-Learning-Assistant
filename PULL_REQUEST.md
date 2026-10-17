@@ -18,7 +18,7 @@
 1. **只读验证**了现有 RAG 的真实流程与真实表现（真实 10 份 PDF + 真实
    `bge-small-zh-v1.5` 向量，全部写临时目录）。
 2. **修复 3 个已确认的缺陷**，范围限制在 `backend/knowledge/`。
-3. **补充 27 个可重复执行的测试**（87 → 114，全部通过）。
+3. **补充 27 个可重复执行的测试**（87 → 114；后续阶段累计到 **128**，全部通过）。
 4. 交付**可核验的知识材料来源清单**（45 条原文断言 + 校验和自动校验）。
 5. 把**未修复的问题与未验证的风险**全部列清楚，没有夸大结论。
 6. **阶段二补充**：把带标准答案的问题集从 1 条扩到 **24 条**（阶段三修正了其中两处错误标注），
@@ -137,16 +137,19 @@ python tools/rag_verification/verify_rag.py   # E5、E7
   唯一依赖旧精确前缀的既有测试已按新语义更新，并新增测试锁定"无 metadata = 旧格式"。
 - `ingest_pdf_to_store` **新增可选参数**，旧调用点无需改动。
 - 未改动任何公共返回结构、异常类型、`SearchResult` / `VectorRecord` 定义。
-- **未删除任何向量库、未重新生成全量 Embedding。**
-  仓库中本来也不存在 `data/chroma/`（被 `.gitignore` 忽略）。
-  P1/P2 要正式生效需重新入库，步骤写在报告 3.2 节，**等确认后再执行**。
+- **未删除任何既有向量库。** 仓库原先不存在 `data/chroma/`；阶段三已用修复后的代码
+  从 10 份 PDF 重建一份（75 条 / 10 份文档）并纳入版本控制，见「阶段三」一节。
+  重建是幂等的、不会删除其它数据，命令为 `python -m backend.knowledge.build_index`。
 
 ## 测试
 
+**当前测试总数：128**（阶段一 87 → 阶段二 114 → 阶段三 128）。下表按阶段记录当时的输出。
+
 ```powershell
 python -m unittest discover -s backend -t . -p "test_*.py"
-# 修复前：Ran 87 tests ... OK
-# 修复后：Ran 114 tests ... OK
+# 阶段一 修复前：Ran 87 tests ... OK
+# 阶段一 修复后：Ran 114 tests ... OK
+# 阶段三 当前：  Ran 128 tests ... OK
 ```
 
 新增用例：
@@ -171,7 +174,7 @@ python tools/rag_verification/verify_rag.py         # E1–E10
 
 | 命令 | 实际结果 |
 | --- | --- |
-| `python -m unittest discover -s backend -t . -p "test_*.py"` | `Ran 114 tests in 13.524s ... OK`，进程退出码 **0**（可直接作 CI 门禁） |
+| `python -m unittest discover -s backend -t . -p "test_*.py"` | 阶段二时 `Ran 114 tests in 13.524s ... OK`，退出码 **0**；阶段三后为 128（见「阶段三 · 测试」） |
 | `python tools/rag_verification/verify_inventory.py` | `documents checked: 10   text claims verified: 45`，`PASS` |
 | `python tools/rag_verification/verify_rag.py` | E1 共 75 chunks、每份文档 `compatibility_chars = 0`；E2 `duplicate ids = 0`、`PASS`；E5 无过滤时 top_3 = 2025 列表 + 2023 办法 + 2024 奖励，`year=2026` 时 9 条全部来自 2026 列表；E7 `year=1999` 返回 0 条、`top_k=50` 命中单文档时返回 1 条；E10 9 个 chunk 中 8 个分数上升 |
 
@@ -242,9 +245,12 @@ python tools/rag_verification/verify_rag.py         # E1–E10
 
 ### 测试
 
-| 阶段 | 命令 | 结果 |
+| 命令 | 实际结果（2026-10-17 重跑） | 退出码 |
 | --- | --- | --- |
-| 本 PR 最终状态 | `python -m unittest discover -s backend -t . -p "test_*.py"` | `Ran 128 tests in 16.097s` → **OK**，退出码 0 |
+| `python -m unittest discover -s backend -t . -p "test_*.py"` | `Ran 128 tests in 16.723s` → **OK** | **0** |
+| `python tools/rag_verification/verify_inventory.py` | `documents checked: 10   text claims verified: 45` → `PASS` | **0** |
+| `python tools/rag_verification/verify_rag.py` | E1 75 chunks、E2 幂等 `PASS`（重复 ID 0）、E10 8/9 chunk 分数上升 | **0** |
+| `python tools/rag_verification/check_retrieval.py` | 24 题；18 道有期望文档的题全部进 top_3；负样本第一名 0.5349–0.6590 | **0** |
 
 新增的 `test_build_index.py`（6 个用例）守护入库文档表：磁盘上每个 PDF 都在表里、
 表里每个条目都有对应文件、`document_id` 不重复、且与来源清单逐条一致——

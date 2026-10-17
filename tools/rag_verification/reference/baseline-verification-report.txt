@@ -1,7 +1,7 @@
 DMU AI Learning Assistant - RAG verification harness
 repository root: C:\Users\zwk\Documents\Codex\DMU-AI-Learning-Assistant
 documents:       10 PDF files
-throwaway Chroma dir (the repo index is never opened): C:\Users\zwk\AppData\Local\Temp\rag-verify-i1m_guti\chroma
+throwaway Chroma dir (the repo index is never opened): C:\Users\zwk\AppData\Local\Temp\rag-verify-qhx6sliq\chroma
 
 ================================================================================================
 E1  Real-model ingest of the 10 knowledge PDFs (Phase 2 code)
