@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import TaskPreviewCard from "./components/TaskPreviewCard";
+import { mockTaskPreview } from "./data/mockTaskPreview";
 
 function App() {
   const [question, setQuestion] = useState("");
@@ -284,6 +286,8 @@ async function copyAiMessage(index: number, content: string) {
 
       </div>
 
+
+      <TaskPreviewCard data={mockTaskPreview} />
 
       <div className="input-area">
 

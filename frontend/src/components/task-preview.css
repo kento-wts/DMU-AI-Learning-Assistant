@@ -1,0 +1,182 @@
+/* 作用域限定在 .task-preview 内，避免影响聊天界面。
+   注意：index.css 中存在全局 `button` 规则（width:100px; margin-left:15px），
+   所以下面的 .task-preview__btn 必须显式覆盖这些属性。 */
+
+.task-preview {
+  margin-top: 20px;
+  padding: 20px;
+  background: #ffffff;
+  border: 1px solid #dbe4f7;
+  border-radius: 20px;
+  text-align: left;
+}
+
+.task-preview__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.task-preview__heading {
+  min-width: 0;
+}
+
+.task-preview__eyebrow {
+  margin: 0 0 6px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: #6b7a99;
+}
+
+.task-preview__title {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.35;
+  text-align: left;
+  color: #1f2a44;
+}
+
+.task-preview__status {
+  flex: 0 0 auto;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.task-preview__status--pending {
+  background: #fff4e5;
+  border-color: #ffd9a8;
+  color: #a65d00;
+}
+
+.task-preview__status--confirmed {
+  background: #e6f7ec;
+  border-color: #b7e7c7;
+  color: #137a3c;
+}
+
+.task-preview__status--cancelled {
+  background: #eef1f6;
+  border-color: #d7deea;
+  color: #5c6b85;
+}
+
+.task-preview__desc {
+  margin: 12px 0 0;
+  color: #3c4a63;
+  line-height: 1.7;
+}
+
+.task-preview__steps {
+  margin: 16px 0 0;
+  padding-left: 20px;
+  color: #3c4a63;
+}
+
+.task-preview__step {
+  margin: 0 0 12px;
+}
+
+.task-preview__step:last-child {
+  margin-bottom: 0;
+}
+
+.task-preview__step-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.5;
+  text-align: left;
+  color: #22304d;
+}
+
+.task-preview__step-desc {
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #5a6780;
+}
+
+.task-preview__hint {
+  margin: 16px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f5f7fb;
+  color: #4a5872;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.task-preview__actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+/* 覆盖 index.css 中全局 button 的 width / margin-left / font-size */
+.task-preview__btn {
+  width: auto;
+  margin-left: 0;
+  height: 40px;
+  padding: 0 18px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.task-preview__btn--primary {
+  background: #4f7cff;
+  color: #ffffff;
+}
+
+.task-preview__btn--primary:hover:not(:disabled) {
+  background: #3f68e6;
+}
+
+.task-preview__btn--ghost {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #4a5872;
+}
+
+.task-preview__btn--ghost:hover:not(:disabled) {
+  background: #f1f5f9;
+}
+
+.task-preview__btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.task-preview__btn:focus-visible {
+  outline: 2px solid #4f7cff;
+  outline-offset: 2px;
+}
+
+@media (max-width: 760px) {
+  .task-preview {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .task-preview__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .task-preview__actions {
+    flex-direction: column;
+  }
+
+  .task-preview__btn {
+    width: 100%;
+  }
+}
+
